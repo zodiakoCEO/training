@@ -1,5 +1,5 @@
-import { IconBadge } from '../../atoms/Button/IconBadge';
-import { PlusIcon } from '../../atoms/Button/PlusIcon';
+import { IconBadge } from '../../atoms/IconBadge';
+import { PlusIcon } from '../../atoms/PlusIcon';
 
 interface AddProjectCardProps {
   onClick: () => void;

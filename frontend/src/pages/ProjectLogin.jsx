@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react';
+import Swal from 'sweetalert2';
+import 'sweetalert2/dist/sweetalert2.min.css';
 
 const BENEFITS = [
   'Gestionar tus primeros tickets de forma simple y organizada.',
@@ -6,9 +8,22 @@ const BENEFITS = [
   'Colabora con tu equipo y resuelve incidencias en tiempo real.',
 ];
 
+const LOGIN_ALERT_OPTIONS = {
+  width: '360px',
+  padding: '1.25rem',
+  confirmButtonText: 'Entendido',
+  buttonsStyling: false,
+  customClass: {
+    popup: 'login-alert-popup',
+    icon: 'login-alert-icon',
+    title: 'login-alert-title',
+    htmlContainer: 'login-alert-message',
+    confirmButton: 'login-alert-confirm',
+  },
+};
+
 function ProjectLogin({ onBack }) {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
-  const [notice, setNotice] = useState('');
 
   useEffect(() => {
     const previousTitle = document.title;
@@ -21,7 +36,52 @@ function ProjectLogin({ onBack }) {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    setNotice('La autenticación aún no está conectada.');
+
+    const form = event.currentTarget;
+    const emailInput = form.elements.namedItem('email');
+    const email = emailInput.value.trim();
+    const password = form.elements.namedItem('password').value;
+
+    if (!email) {
+      Swal.fire({
+        ...LOGIN_ALERT_OPTIONS,
+        icon: 'warning',
+        iconColor: '#ad741e',
+        title: 'Falta tu usuario',
+        text: 'Ingresa tu correo electrónico para continuar.',
+      });
+      return;
+    }
+
+    if (emailInput.validity.typeMismatch || !email.includes('@')) {
+      Swal.fire({
+        ...LOGIN_ALERT_OPTIONS,
+        icon: 'warning',
+        iconColor: '#ad741e',
+        title: 'Correo electrónico inválido',
+        text: 'Verifica que tu correo tenga un formato válido e incluya el símbolo @.',
+      });
+      return;
+    }
+
+    if (!password) {
+      Swal.fire({
+        ...LOGIN_ALERT_OPTIONS,
+        icon: 'warning',
+        iconColor: '#ad741e',
+        title: 'Falta tu contraseña',
+        text: 'Ingresa tu contraseña para continuar.',
+      });
+      return;
+    }
+
+    Swal.fire({
+      ...LOGIN_ALERT_OPTIONS,
+      icon: 'error',
+      iconColor: '#b94b4b',
+      title: 'No se pudieron validar las credenciales',
+      text: 'La autenticación aún no está conectada, así que no es posible comprobar tu usuario y contraseña.',
+    });
   };
 
   return (
@@ -66,7 +126,7 @@ function ProjectLogin({ onBack }) {
           <h2>Iniciar sesión</h2>
           <p className="login-subtitle">Accede a tu cuenta empresarial Unisys Training</p>
 
-          <form className="login-form" onSubmit={handleSubmit}>
+          <form className="login-form" noValidate onSubmit={handleSubmit}>
             <label className="login-field-label" htmlFor="login-email">Usuario</label>
             <input
               autoComplete="username"
@@ -110,15 +170,19 @@ function ProjectLogin({ onBack }) {
               </label>
               <button
                 className="forgot-password"
-                onClick={() => setNotice('La recuperación de contraseña aún no está configurada.')}
+                onClick={() => Swal.fire({
+                  ...LOGIN_ALERT_OPTIONS,
+                  icon: 'info',
+                  iconColor: '#1b8175',
+                  title: 'Recuperación de contraseña',
+                  text: 'La recuperación de contraseña aún no está configurada.',
+                })}
                 type="button"
               >
                 ¿Olvidaste tu contraseña?
               </button>
             </div>
-
             <button className="login-submit" type="submit">Iniciar sesión</button>
-            <p className="login-notice" aria-live="polite">{notice}</p>
 
             <div className="login-security-note">
               <svg aria-hidden="true" viewBox="0 0 20 20" fill="none">

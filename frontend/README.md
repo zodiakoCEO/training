@@ -1,5 +1,31 @@
 # React + Vite
 
+## Project structure
+
+The UI follows Atomic Design. Keep dependencies flowing from smaller building
+blocks to larger compositions:
+
+```text
+src/
+  App.jsx
+  main.jsx
+  assets/
+  components/
+    atoms/                 Basic reusable controls and visual primitives
+    molecules/             Small groups of atoms, such as headers and previews
+    organisms/
+      project-bar/         Project cards, grid, and project create/edit modal
+    templates/             Page-level layout compositions
+  pages/                   Screens and page-specific flows
+  types/                   Shared domain types
+  styles.css               Global and component styles
+```
+
+Atoms should not depend on molecules, organisms, templates, or pages. Molecules
+may compose atoms; organisms may compose atoms and molecules; templates and
+pages compose the layers below them. Keep project-specific collections together
+under a named organism folder such as `organisms/project-bar`.
+
 This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
 
 Currently, two official plugins are available:
