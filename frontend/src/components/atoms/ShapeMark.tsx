@@ -1,4 +1,4 @@
-import type { ProjectShape } from '../../../types/project';
+import type { ProjectShape } from '../../types/project';
 
 interface ShapeMarkProps {
   shape: ProjectShape;

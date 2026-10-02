@@ -4,6 +4,7 @@ import { ProjectGrid } from '../components/organisms/project-bar/ProjectGrid';
 import CreateProjectModal from '../components/organisms/project-bar/CreateProjectModal.jsx';
 import { DashboardTemplate } from '../components/templates/DashboardTemplate';
 import ProjectLogin from './ProjectLogin.jsx';
+import SmartRecorder from './SmartRecorder.jsx';
 
 const INITIAL_PROJECTS = [
 	{ id: 'project-1', name: 'Proyecto A', shape: 'square', loginEnabled: true },
@@ -13,11 +14,24 @@ const INITIAL_PROJECTS = [
 function Dashboard() {
 	const [projects, setProjects] = useState(INITIAL_PROJECTS);
 	const [isProjectALoginOpen, setIsProjectALoginOpen] = useState(false);
+	const [isRecorderOpen, setIsRecorderOpen] = useState(false);
 	const [isCreateProjectOpen, setIsCreateProjectOpen] = useState(false);
 	const [projectToEdit, setProjectToEdit] = useState(null);
 
+	if (isRecorderOpen) {
+		return <SmartRecorder onBack={() => setIsRecorderOpen(false)} />;
+	}
+
 	if (isProjectALoginOpen) {
-		return <ProjectLogin onBack={() => setIsProjectALoginOpen(false)} />;
+		return (
+			<ProjectLogin
+				onBack={() => setIsProjectALoginOpen(false)}
+				onLogin={() => {
+					setIsProjectALoginOpen(false);
+					setIsRecorderOpen(true);
+				}}
+			/>
+		);
 	}
 
 	const handleSaveProject = ({ name, imageUrl }) => {

@@ -22,7 +22,7 @@ const LOGIN_ALERT_OPTIONS = {
   },
 };
 
-function ProjectLogin({ onBack }) {
+function ProjectLogin({ onBack, onLogin }) {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
   useEffect(() => {
@@ -75,13 +75,7 @@ function ProjectLogin({ onBack }) {
       return;
     }
 
-    Swal.fire({
-      ...LOGIN_ALERT_OPTIONS,
-      icon: 'error',
-      iconColor: '#b94b4b',
-      title: 'No se pudieron validar las credenciales',
-      text: 'La autenticación aún no está conectada, así que no es posible comprobar tu usuario y contraseña.',
-    });
+    onLogin(email);
   };
 
   return (
