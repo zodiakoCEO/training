@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
+import NotificationBell from '../components/molecules/NotificationBell.jsx';
+import UserMenu from '../components/molecules/UserMenu.jsx';
 
-function SmartRecorder({ onBack }) {
+function SmartRecorder({ onOpenPanel, onLogout, isTicketNotificationUnread, onMarkTicketNotificationRead }) {
   const [note, setNote] = useState('');
   const [isTicketMenuOpen, setIsTicketMenuOpen] = useState(false);
   const [ticketType, setTicketType] = useState('');
@@ -26,7 +28,7 @@ function SmartRecorder({ onBack }) {
         <div className="recorder-brand-nav">
           <span className="recorder-brand">Unisys Training</span>
           <nav className="recorder-tabs" aria-label="Navegación principal">
-            <button className="recorder-tab" onClick={onBack} type="button">Panel</button>
+            <button className="recorder-tab" onClick={onOpenPanel} type="button">Panel</button>
             <button className="recorder-tab recorder-tab--active" type="button">
               Registrador inteligente
             </button>
@@ -39,19 +41,11 @@ function SmartRecorder({ onBack }) {
               <path d="m15.5 15.5 4.2 4.2" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
             </svg>
           </button>
-          <button className="recorder-icon-button" aria-label="Notificaciones" type="button">
-            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path d="M18 9a6 6 0 0 0-12 0c0 7-2.5 7-2.5 8.5h17C20.5 16 18 16 18 9Z" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round" />
-              <path d="M10 20h4" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
-            </svg>
-          </button>
-          <button className="recorder-user" type="button">
-            <span className="recorder-avatar">JP</span>
-            <span className="recorder-user-name">Jhon Pulido</span>
-            <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
-              <path d="m6 8 4 4 4-4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </button>
+          <NotificationBell
+            isUnread={isTicketNotificationUnread}
+            onMarkAsRead={onMarkTicketNotificationRead}
+          />
+          <UserMenu onLogout={onLogout} />
         </div>
       </header>
 

@@ -4,6 +4,7 @@ import { ProjectGrid } from '../components/organisms/project-bar/ProjectGrid';
 import CreateProjectModal from '../components/organisms/project-bar/CreateProjectModal.jsx';
 import { DashboardTemplate } from '../components/templates/DashboardTemplate';
 import ProjectLogin from './ProjectLogin.jsx';
+import CasePanel from './CasePanel.jsx';
 import SmartRecorder from './SmartRecorder.jsx';
 
 const INITIAL_PROJECTS = [
@@ -15,11 +16,39 @@ function Dashboard() {
 	const [projects, setProjects] = useState(INITIAL_PROJECTS);
 	const [isProjectALoginOpen, setIsProjectALoginOpen] = useState(false);
 	const [isRecorderOpen, setIsRecorderOpen] = useState(false);
+	const [isCasePanelOpen, setIsCasePanelOpen] = useState(false);
+	const [isTicketNotificationUnread, setIsTicketNotificationUnread] = useState(true);
 	const [isCreateProjectOpen, setIsCreateProjectOpen] = useState(false);
 	const [projectToEdit, setProjectToEdit] = useState(null);
 
+	const handleLogout = () => {
+		setIsCasePanelOpen(false);
+		setIsRecorderOpen(false);
+		setIsProjectALoginOpen(false);
+		setIsCreateProjectOpen(false);
+		setProjectToEdit(null);
+	};
+
+	if (isCasePanelOpen) {
+		return (
+			<CasePanel
+				isTicketNotificationUnread={isTicketNotificationUnread}
+				onMarkTicketNotificationRead={() => setIsTicketNotificationUnread(false)}
+				onLogout={handleLogout}
+				onOpenRecorder={() => setIsCasePanelOpen(false)}
+			/>
+		);
+	}
+
 	if (isRecorderOpen) {
-		return <SmartRecorder onBack={() => setIsRecorderOpen(false)} />;
+		return (
+			<SmartRecorder
+				isTicketNotificationUnread={isTicketNotificationUnread}
+				onMarkTicketNotificationRead={() => setIsTicketNotificationUnread(false)}
+				onLogout={handleLogout}
+				onOpenPanel={() => setIsCasePanelOpen(true)}
+			/>
+		);
 	}
 
 	if (isProjectALoginOpen) {
