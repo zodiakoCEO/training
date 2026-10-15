@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
+import AppSearch from '../components/molecules/AppSearch.jsx';
 import NotificationBell from '../components/molecules/NotificationBell.jsx';
 import UserMenu from '../components/molecules/UserMenu.jsx';
 
-function CasePanel({ onOpenRecorder, onLogout, isTicketNotificationUnread, onMarkTicketNotificationRead }) {
+function CasePanel({ onOpenPanel, onOpenRecorder, onLogout, isTicketNotificationUnread, onMarkTicketNotificationRead }) {
   const [isTicketMenuOpen, setIsTicketMenuOpen] = useState(false);
   const [ticketType, setTicketType] = useState('');
 
@@ -30,12 +31,11 @@ function CasePanel({ onOpenRecorder, onLogout, isTicketNotificationUnread, onMar
           </nav>
         </div>
         <div className="recorder-user-nav">
-          <button className="recorder-icon-button" aria-label="Buscar" type="button">
-            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <circle cx="10.8" cy="10.8" r="6.3" stroke="currentColor" strokeWidth="1.8" />
-              <path d="m15.5 15.5 4.2 4.2" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-            </svg>
-          </button>
+          <AppSearch
+            onCreateTicket={() => setIsTicketMenuOpen(true)}
+            onOpenPanel={onOpenPanel}
+            onOpenRecorder={onOpenRecorder}
+          />
           <NotificationBell
             isUnread={isTicketNotificationUnread}
             onMarkAsRead={onMarkTicketNotificationRead}

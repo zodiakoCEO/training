@@ -6,6 +6,7 @@ import { DashboardTemplate } from '../components/templates/DashboardTemplate';
 import ProjectLogin from './ProjectLogin.jsx';
 import CasePanel from './CasePanel.jsx';
 import SmartRecorder from './SmartRecorder.jsx';
+import IncidentPage from './IncidentPage.jsx';
 
 const INITIAL_PROJECTS = [
 	{ id: 'project-1', name: 'Proyecto A', shape: 'square', loginEnabled: true },
@@ -17,17 +18,37 @@ function Dashboard() {
 	const [isProjectALoginOpen, setIsProjectALoginOpen] = useState(false);
 	const [isRecorderOpen, setIsRecorderOpen] = useState(false);
 	const [isCasePanelOpen, setIsCasePanelOpen] = useState(false);
+	const [isIncidentOpen, setIsIncidentOpen] = useState(false);
 	const [isTicketNotificationUnread, setIsTicketNotificationUnread] = useState(true);
 	const [isCreateProjectOpen, setIsCreateProjectOpen] = useState(false);
 	const [projectToEdit, setProjectToEdit] = useState(null);
 
 	const handleLogout = () => {
 		setIsCasePanelOpen(false);
+		setIsIncidentOpen(false);
 		setIsRecorderOpen(false);
 		setIsProjectALoginOpen(false);
 		setIsCreateProjectOpen(false);
 		setProjectToEdit(null);
 	};
+
+	if (isIncidentOpen) {
+		return (
+			<IncidentPage
+				isTicketNotificationUnread={isTicketNotificationUnread}
+				onMarkTicketNotificationRead={() => setIsTicketNotificationUnread(false)}
+				onLogout={handleLogout}
+				onOpenPanel={() => {
+					setIsIncidentOpen(false);
+					setIsCasePanelOpen(true);
+				}}
+				onOpenRecorder={() => {
+					setIsIncidentOpen(false);
+					setIsRecorderOpen(true);
+				}}
+			/>
+		);
+	}
 
 	if (isCasePanelOpen) {
 		return (
@@ -35,6 +56,7 @@ function Dashboard() {
 				isTicketNotificationUnread={isTicketNotificationUnread}
 				onMarkTicketNotificationRead={() => setIsTicketNotificationUnread(false)}
 				onLogout={handleLogout}
+				onOpenPanel={() => setIsCasePanelOpen(true)}
 				onOpenRecorder={() => setIsCasePanelOpen(false)}
 			/>
 		);
@@ -47,6 +69,11 @@ function Dashboard() {
 				onMarkTicketNotificationRead={() => setIsTicketNotificationUnread(false)}
 				onLogout={handleLogout}
 				onOpenPanel={() => setIsCasePanelOpen(true)}
+				onOpenRecorder={() => setIsRecorderOpen(true)}
+				onOpenIncident={() => {
+					setIsRecorderOpen(false);
+					setIsIncidentOpen(true);
+				}}
 			/>
 		);
 	}
