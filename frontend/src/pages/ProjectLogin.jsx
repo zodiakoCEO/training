@@ -111,7 +111,8 @@ function ProjectLogin({ onBack, onLogin }) {
         <button className="login-back" type="button" onClick={onBack}>
           <svg aria-hidden="true" viewBox="0 0 20 20" fill="none">
             <path d="m12 4-6 6 6 6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
+          </svg> 
+          
           Mis proyectos
         </button>
 

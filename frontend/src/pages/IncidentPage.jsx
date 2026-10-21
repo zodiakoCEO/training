@@ -90,9 +90,10 @@ function IncidentPage({
   onLogout,
   isTicketNotificationUnread,
   onMarkTicketNotificationRead,
+  onSaveIncident,
+  ticketNumber,
 }) {
   const [incident, setIncident] = useState(INITIAL_INCIDENT);
-  const [modifiedFields, setModifiedFields] = useState({});
   const [errors, setErrors] = useState({});
   const [feedback, setFeedback] = useState('');
   const [activeTab, setActiveTab] = useState('resources');
@@ -120,14 +121,12 @@ function IncidentPage({
       ...current,
       [name]: type === 'checkbox' ? checked : value,
     }));
-    setModifiedFields((current) => ({ ...current, [name]: true }));
     setErrors((current) => ({ ...current, [name]: '' }));
     setFeedback('');
   };
 
   const resetIncident = () => {
     setIncident(INITIAL_INCIDENT);
-    setModifiedFields({});
     setErrors({});
     setFeedback('');
     setAttachments([]);
@@ -170,7 +169,7 @@ function IncidentPage({
   };
 
   const isRequiredFieldComplete = (field) => {
-    if (!modifiedFields[field] || !String(incident[field]).trim()) return false;
+    if (!String(incident[field]).trim()) return false;
     if (field === 'clientPhone') return /^[+\d\s().-]{7,20}$/.test(incident.clientPhone.trim());
     return true;
   };
@@ -198,7 +197,13 @@ function IncidentPage({
       setFeedback('Revisa los campos marcados para continuar.');
       return;
     }
-    setFeedback('Incidente validado correctamente y listo para guardar.');
+    onSaveIncident({
+      ...incident,
+      number: ticketNumber,
+      requiredFieldsCompleted: REQUIRED_FIELD_LABELS.filter(([field]) => isRequiredFieldComplete(field)).length,
+      requiredFieldsTotal: REQUIRED_FIELD_LABELS.length,
+      createdAt: new Date().toISOString(),
+    });
   };
 
   const renderField = (name, label, options = {}) => {
@@ -316,7 +321,7 @@ function IncidentPage({
 
       <div className="incident-page-titlebar">
         <h1>Crear incidencia</h1>
-        <span>Ticket000381268</span>
+        <span>{ticketNumber}</span>
       </div>
 
       <div className="incident-page-workspace">

@@ -15,77 +15,92 @@ const INITIAL_PROJECTS = [
 
 function Dashboard() {
 	const [projects, setProjects] = useState(INITIAL_PROJECTS);
-	const [isProjectALoginOpen, setIsProjectALoginOpen] = useState(false);
-	const [isRecorderOpen, setIsRecorderOpen] = useState(false);
-	const [isCasePanelOpen, setIsCasePanelOpen] = useState(false);
-	const [isIncidentOpen, setIsIncidentOpen] = useState(false);
+	const [isAuthenticated, setIsAuthenticated] = useState(false);
+	const [currentPage, setCurrentPage] = useState('projects');
+	const [tickets, setTickets] = useState([]);
+	const [incidentStartedAt, setIncidentStartedAt] = useState(null);
 	const [isTicketNotificationUnread, setIsTicketNotificationUnread] = useState(true);
 	const [isCreateProjectOpen, setIsCreateProjectOpen] = useState(false);
 	const [projectToEdit, setProjectToEdit] = useState(null);
 
 	const handleLogout = () => {
-		setIsCasePanelOpen(false);
-		setIsIncidentOpen(false);
-		setIsRecorderOpen(false);
-		setIsProjectALoginOpen(false);
+		setIsAuthenticated(false);
+		setCurrentPage('projects');
+		setTickets([]);
+		setIncidentStartedAt(null);
+		setIsTicketNotificationUnread(true);
 		setIsCreateProjectOpen(false);
 		setProjectToEdit(null);
 	};
 
-	if (isIncidentOpen) {
+	const openPage = (page) => setCurrentPage(page);
+
+	const handleSaveIncident = (incident) => {
+		setTickets((currentTickets) => [incident, ...currentTickets]);
+		setIncidentStartedAt(null);
+		setCurrentPage('panel');
+	};
+
+	const startIncident = () => {
+		setIncidentStartedAt(Date.now());
+		setCurrentPage('incident');
+	};
+
+	const nextTicketNumber = `Ticket${String(381268 + tickets.length).padStart(9, '0')}`;
+
+	if (currentPage === 'login' && !isAuthenticated) {
+		return (
+			<ProjectLogin
+				onBack={() => openPage('projects')}
+				onLogin={() => {
+					setIsAuthenticated(true);
+					openPage('recorder');
+				}}
+			/>
+		);
+	}
+
+	if (isAuthenticated && currentPage === 'incident') {
 		return (
 			<IncidentPage
 				isTicketNotificationUnread={isTicketNotificationUnread}
 				onMarkTicketNotificationRead={() => setIsTicketNotificationUnread(false)}
 				onLogout={handleLogout}
-				onOpenPanel={() => {
-					setIsIncidentOpen(false);
-					setIsCasePanelOpen(true);
-				}}
-				onOpenRecorder={() => {
-					setIsIncidentOpen(false);
-					setIsRecorderOpen(true);
-				}}
+				onOpenPanel={() => openPage('panel')}
+				onOpenRecorder={() => openPage('recorder')}
+				onSaveIncident={(incident) => handleSaveIncident({
+					...incident,
+					durationMs: Date.now() - incidentStartedAt,
+				})}
+				ticketNumber={nextTicketNumber}
 			/>
 		);
 	}
 
-	if (isCasePanelOpen) {
-		return (
-			<CasePanel
-				isTicketNotificationUnread={isTicketNotificationUnread}
-				onMarkTicketNotificationRead={() => setIsTicketNotificationUnread(false)}
-				onLogout={handleLogout}
-				onOpenPanel={() => setIsCasePanelOpen(true)}
-				onOpenRecorder={() => setIsCasePanelOpen(false)}
-			/>
-		);
-	}
-
-	if (isRecorderOpen) {
+	if (isAuthenticated && currentPage === 'recorder') {
 		return (
 			<SmartRecorder
 				isTicketNotificationUnread={isTicketNotificationUnread}
 				onMarkTicketNotificationRead={() => setIsTicketNotificationUnread(false)}
 				onLogout={handleLogout}
-				onOpenPanel={() => setIsCasePanelOpen(true)}
-				onOpenRecorder={() => setIsRecorderOpen(true)}
-				onOpenIncident={() => {
-					setIsRecorderOpen(false);
-					setIsIncidentOpen(true);
-				}}
+				onOpenPanel={() => openPage('panel')}
+				onOpenRecorder={() => openPage('recorder')}
+				onOpenIncident={startIncident}
 			/>
 		);
 	}
 
-	if (isProjectALoginOpen) {
+	if (isAuthenticated) {
 		return (
-			<ProjectLogin
-				onBack={() => setIsProjectALoginOpen(false)}
-				onLogin={() => {
-					setIsProjectALoginOpen(false);
-					setIsRecorderOpen(true);
-				}}
+			<CasePanel
+				isTicketNotificationUnread={isTicketNotificationUnread}
+				onMarkTicketNotificationRead={() => setIsTicketNotificationUnread(false)}
+				onLogout={handleLogout}
+				onOpenPanel={() => openPage('panel')}
+				onOpenRecorder={() => openPage('recorder')}
+				onOpenIncident={startIncident}
+				incidentStartedAt={incidentStartedAt}
+				tickets={tickets}
 			/>
 		);
 	}
@@ -124,7 +139,7 @@ function Dashboard() {
 					projects={projects}
 					onCreateProject={() => setIsCreateProjectOpen(true)}
 					onEditProject={setProjectToEdit}
-					onOpenProject={() => setIsProjectALoginOpen(true)}
+					onOpenProject={() => openPage('login')}
 				/>
 			</DashboardTemplate>
 			{(isCreateProjectOpen || projectToEdit) && (
