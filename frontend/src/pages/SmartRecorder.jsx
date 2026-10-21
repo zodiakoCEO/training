@@ -3,7 +3,7 @@ import AppSearch from '../components/molecules/AppSearch.jsx';
 import NotificationBell from '../components/molecules/NotificationBell.jsx';
 import UserMenu from '../components/molecules/UserMenu.jsx';
 
-function SmartRecorder({ onOpenPanel, onOpenRecorder, onOpenIncident, onLogout, isTicketNotificationUnread, onMarkTicketNotificationRead }) {
+function SmartRecorder({ onOpenPanel, onOpenRecorder, onOpenIncident, onOpenWorkOrder, onLogout, isTicketNotificationUnread, onMarkTicketNotificationRead }) {
   const [note, setNote] = useState('');
   const [isTicketMenuOpen, setIsTicketMenuOpen] = useState(false);
   const [ticketType, setTicketType] = useState('');
@@ -84,13 +84,14 @@ function SmartRecorder({ onOpenPanel, onOpenRecorder, onOpenIncident, onLogout, 
         <div className="recorder-create-wrap">
           {isTicketMenuOpen && (
             <div className="recorder-ticket-menu" role="menu">
-              {['Incidente', 'Solicitud', 'Consulta'].map((type) => (
+              {['Incidente', 'Orden de trabajo', 'Consulta'].map((type) => (
                 <button
                   key={type}
                   onClick={() => {
                     setTicketType(type);
                     setIsTicketMenuOpen(false);
                     if (type === 'Incidente') onOpenIncident();
+                    if (type === 'Orden de trabajo') onOpenWorkOrder();
                   }}
                   role="menuitem"
                   type="button"

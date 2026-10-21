@@ -10,7 +10,7 @@ function formatDuration(durationMs) {
   return `${minutes}:${String(seconds).padStart(2, '0')}`;
 }
 
-function CasePanel({ onOpenPanel, onOpenRecorder, onOpenIncident, onLogout, isTicketNotificationUnread, onMarkTicketNotificationRead, tickets, incidentStartedAt }) {
+function CasePanel({ onOpenPanel, onOpenRecorder, onOpenIncident, onOpenWorkOrder, onLogout, isTicketNotificationUnread, onMarkTicketNotificationRead, tickets, incidentStartedAt }) {
   const [isTicketMenuOpen, setIsTicketMenuOpen] = useState(false);
   const [ticketType, setTicketType] = useState('');
   const [selectedTicketNumber, setSelectedTicketNumber] = useState('');
@@ -125,6 +125,7 @@ function CasePanel({ onOpenPanel, onOpenRecorder, onOpenIncident, onLogout, isTi
                     <span>{ticket.number}</span>
                   </span>
                   <span className="case-ticket-item-meta">
+                    <span>{ticket.type ?? 'Incidente'}</span>
                     <span>{ticket.status}</span>
                     <span>{ticket.priority}</span>
                   </span>
@@ -270,8 +271,8 @@ function CasePanel({ onOpenPanel, onOpenRecorder, onOpenIncident, onLogout, isTi
               <dd>{selectedTicket?.status ?? 'Sin datos'}</dd>
             </div>
             <div>
-              <dt>Tipo de incidencia</dt>
-              <dd>{selectedTicket?.incidentType || 'Sin datos'}</dd>
+              <dt>{selectedTicket?.type === 'Orden de trabajo' ? 'Tipo de ticket' : 'Tipo de incidencia'}</dt>
+              <dd>{selectedTicket?.type ?? selectedTicket?.incidentType ?? 'Sin datos'}</dd>
             </div>
             <div>
               <dt>Creado</dt>
@@ -288,13 +289,14 @@ function CasePanel({ onOpenPanel, onOpenRecorder, onOpenIncident, onLogout, isTi
         <div className="recorder-create-wrap">
           {isTicketMenuOpen && (
             <div className="recorder-ticket-menu" role="menu">
-              {['Incidente', 'Solicitud', 'Consulta'].map((type) => (
+              {['Incidente', 'Orden de trabajo', 'Consulta'].map((type) => (
                 <button
                   key={type}
                   onClick={() => {
                     setTicketType(type);
                     setIsTicketMenuOpen(false);
                     if (type === 'Incidente') onOpenIncident();
+                    if (type === 'Orden de trabajo') onOpenWorkOrder();
                   }}
                   role="menuitem"
                   type="button"

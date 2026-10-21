@@ -24,6 +24,88 @@ body {
   background: #f4faf9;
 }
 
+.logout-screen {
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  padding: 24px;
+  color: var(--ink);
+  background: #f4faf9;
+  animation: logout-screen-appear 220ms ease-out both;
+}
+
+.logout-card {
+  width: min(100%, 440px);
+  padding: 42px 38px 32px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 12px 34px rgb(23 63 57 / 7%);
+  text-align: center;
+}
+
+.logout-eyebrow {
+  margin: 0 0 10px;
+  color: #168879;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+}
+
+.logout-card h1 {
+  margin: 0;
+  color: var(--ink);
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -.4px;
+}
+
+.logout-message {
+  margin: 11px 0 26px;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.logout-progress {
+  height: 4px;
+  overflow: hidden;
+  border-radius: 99px;
+  background: #e8f2f0;
+}
+
+.logout-progress span {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  background: #18a895;
+  transform: scaleX(0);
+  transform-origin: left;
+  animation: logout-progress-fill 2500ms linear forwards;
+}
+
+.logout-caption {
+  margin: 13px 0 0;
+  color: #829692;
+  font-size: 11px;
+}
+
+@keyframes logout-screen-appear {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes logout-progress-fill {
+  to {
+    transform: scaleX(1);
+  }
+}
+
 button {
   font: inherit;
 }
@@ -2708,6 +2790,8 @@ button {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .logout-screen,
+  .logout-progress span,
   .user-menu-popover,
   .user-menu-profile,
   .user-menu-option,
@@ -2723,11 +2807,16 @@ button {
     opacity: 1;
   }
 
+  .logout-progress span {
+    transform: scaleX(1);
+  }
+
   .app-search,
   .app-search-trigger,
   .app-search-input,
   .app-search-result,
-  .app-search-result-arrow {
+  .app-search-result-arrow,
+  .logout-progress span {
     transition: none;
   }
 
@@ -3193,6 +3282,10 @@ button {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
+.incident-form-grid--two {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
 .incident-form-grid--status {
   padding-top: 0;
   padding-bottom: 0;
@@ -3472,6 +3565,195 @@ button {
 
 .incident-area-chips {
   margin-top: 13px;
+}
+
+.work-order-details-section {
+  display: flex;
+  flex-direction: column;
+  gap: 17px;
+}
+
+.work-order-description-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.8fr) minmax(220px, 1fr);
+  align-items: start;
+  gap: 18px;
+}
+
+.work-order-description-grid > .incident-page-field textarea {
+  min-height: 170px;
+}
+
+.work-order-categories {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.work-order-date-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.work-order-date-group {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 13px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.work-order-date-group legend {
+  margin-bottom: 12px;
+  color: #577b79;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.work-order-related-section {
+  padding: 0;
+}
+
+.work-order-related-tabs {
+  display: flex;
+  min-height: 50px;
+  overflow-x: auto;
+  border-bottom: 1px solid #c3d0d0;
+}
+
+.work-order-related-tab {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 8px;
+  padding: 0 18px;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  color: #76928e;
+  background: transparent;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.work-order-related-tab--active {
+  border-bottom-color: #168879;
+  color: #168879;
+}
+
+.work-order-related-tab > span {
+  display: grid;
+  min-width: 21px;
+  height: 21px;
+  place-items: center;
+  padding: 0 5px;
+  border-radius: 6px;
+  color: #fff;
+  background: #168879;
+  font-size: 11px;
+}
+
+.work-order-tasks {
+  padding: 17px 20px 20px;
+}
+
+.work-order-task-form {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.work-order-task-form input {
+  width: min(100%, 340px);
+  min-height: 40px;
+  padding: 8px 12px;
+  border: 1px solid #bbc8ce;
+  border-radius: 6px;
+  color: #293f3e;
+  background: #fff;
+  font: inherit;
+  font-size: 14px;
+}
+
+.work-order-task-form input:focus {
+  border-color: #188c80;
+  outline: 3px solid rgb(24 140 128 / 13%);
+}
+
+.work-order-task-form button {
+  min-height: 40px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 6px;
+  color: #168879;
+  background: transparent;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.work-order-task-form button:disabled {
+  color: #9aafac;
+  cursor: not-allowed;
+}
+
+.work-order-task-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 15px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.work-order-task-list li,
+.work-order-task-list label {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 9px;
+}
+
+.work-order-task-list li {
+  justify-content: space-between;
+  padding: 9px 11px;
+  border: 1px solid #d2e0de;
+  border-radius: 7px;
+  background: #fff;
+}
+
+.work-order-task-list label {
+  color: #45615d;
+  font-size: 13px;
+}
+
+.work-order-task-list label input {
+  accent-color: #168879;
+}
+
+.work-order-task-list label input:checked + span {
+  color: #829692;
+  text-decoration: line-through;
+}
+
+.work-order-task-list li > button {
+  border: 0;
+  color: #718984;
+  background: transparent;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.work-order-related-empty {
+  margin: 0;
+  padding: 22px 20px;
+  color: #76928e;
+  font-size: 13px;
 }
 
 .incident-resources-panel {
@@ -3973,6 +4255,14 @@ button {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .incident-form-grid--two {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .work-order-description-grid {
+    grid-template-columns: minmax(0, 1.5fr) minmax(180px, 1fr);
+  }
+
   .incident-form-grid--classify .incident-page-field--description {
     grid-column: 1 / -1;
   }
@@ -4022,6 +4312,15 @@ button {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .incident-form-grid--two,
+  .work-order-date-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .work-order-description-grid {
+    grid-template-columns: minmax(0, 1.5fr) minmax(150px, 1fr);
+  }
+
   .incident-description-row {
     grid-template-columns: minmax(0, 1.5fr) minmax(150px, 1fr);
   }
@@ -4052,6 +4351,12 @@ button {
   }
 
   .incident-description-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .work-order-description-grid,
+  .incident-form-grid--two,
+  .work-order-date-grid {
     grid-template-columns: minmax(0, 1fr);
   }
 

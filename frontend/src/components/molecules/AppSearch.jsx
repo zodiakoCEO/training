@@ -19,7 +19,7 @@ const SEARCH_ITEMS = [
     id: 'create-ticket',
     label: 'Crear ticket',
     description: 'Elegir el tipo de ticket',
-    keywords: 'crear ticket incidente solicitud consulta',
+    keywords: 'crear ticket incidente orden de trabajo consulta',
     action: 'createTicket',
   },
 ];

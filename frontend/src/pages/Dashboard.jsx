@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { PageHeader } from '../components/molecules/PageHeader';
 import { ProjectGrid } from '../components/organisms/project-bar/ProjectGrid';
 import CreateProjectModal from '../components/organisms/project-bar/CreateProjectModal.jsx';
@@ -7,6 +7,7 @@ import ProjectLogin from './ProjectLogin.jsx';
 import CasePanel from './CasePanel.jsx';
 import SmartRecorder from './SmartRecorder.jsx';
 import IncidentPage from './IncidentPage.jsx';
+import WorkOrderPage from './WorkOrderPage.jsx';
 
 const INITIAL_PROJECTS = [
 	{ id: 'project-1', name: 'Proyecto A', shape: 'square', loginEnabled: true },
@@ -16,22 +17,37 @@ const INITIAL_PROJECTS = [
 function Dashboard() {
 	const [projects, setProjects] = useState(INITIAL_PROJECTS);
 	const [isAuthenticated, setIsAuthenticated] = useState(false);
+	const [isLoggingOut, setIsLoggingOut] = useState(false);
 	const [currentPage, setCurrentPage] = useState('projects');
 	const [tickets, setTickets] = useState([]);
 	const [incidentStartedAt, setIncidentStartedAt] = useState(null);
 	const [isTicketNotificationUnread, setIsTicketNotificationUnread] = useState(true);
 	const [isCreateProjectOpen, setIsCreateProjectOpen] = useState(false);
 	const [projectToEdit, setProjectToEdit] = useState(null);
+	const logoutTimerRef = useRef(null);
 
 	const handleLogout = () => {
-		setIsAuthenticated(false);
-		setCurrentPage('projects');
-		setTickets([]);
-		setIncidentStartedAt(null);
-		setIsTicketNotificationUnread(true);
-		setIsCreateProjectOpen(false);
-		setProjectToEdit(null);
+		if (logoutTimerRef.current !== null) return;
+
+		setIsLoggingOut(true);
+		logoutTimerRef.current = window.setTimeout(() => {
+			setIsAuthenticated(false);
+			setCurrentPage('projects');
+			setTickets([]);
+			setIncidentStartedAt(null);
+			setIsTicketNotificationUnread(true);
+			setIsCreateProjectOpen(false);
+			setProjectToEdit(null);
+			logoutTimerRef.current = null;
+			setIsLoggingOut(false);
+		}, 2500);
 	};
+
+	useEffect(() => () => {
+		if (logoutTimerRef.current !== null) {
+			window.clearTimeout(logoutTimerRef.current);
+		}
+	}, []);
 
 	const openPage = (page) => setCurrentPage(page);
 
@@ -41,12 +57,35 @@ function Dashboard() {
 		setCurrentPage('panel');
 	};
 
+	const handleSaveWorkOrder = (workOrder) => {
+		setTickets((currentTickets) => [workOrder, ...currentTickets]);
+		setCurrentPage('panel');
+	};
+
 	const startIncident = () => {
 		setIncidentStartedAt(Date.now());
 		setCurrentPage('incident');
 	};
 
+	const startWorkOrder = () => setCurrentPage('work-order');
+
 	const nextTicketNumber = `Ticket${String(381268 + tickets.length).padStart(9, '0')}`;
+
+	if (isLoggingOut) {
+		return (
+			<main aria-atomic="true" aria-busy="true" aria-live="polite" className="logout-screen" role="status">
+				<section className="logout-card">
+					<p className="logout-eyebrow">HASTA PRONTO</p>
+					<h1>Cerrando sesión</h1>
+					<p className="logout-message">Estamos cerrando tu sesión y preparando tus proyectos.</p>
+					<div aria-hidden="true" className="logout-progress">
+						<span />
+					</div>
+					<p className="logout-caption">Esto solo tomará unos segundos</p>
+				</section>
+			</main>
+		);
+	}
 
 	if (currentPage === 'login' && !isAuthenticated) {
 		return (
@@ -77,6 +116,20 @@ function Dashboard() {
 		);
 	}
 
+	if (isAuthenticated && currentPage === 'work-order') {
+		return (
+			<WorkOrderPage
+				isTicketNotificationUnread={isTicketNotificationUnread}
+				onMarkTicketNotificationRead={() => setIsTicketNotificationUnread(false)}
+				onLogout={handleLogout}
+				onOpenPanel={() => openPage('panel')}
+				onOpenRecorder={() => openPage('recorder')}
+				onSaveWorkOrder={handleSaveWorkOrder}
+				ticketNumber={nextTicketNumber}
+			/>
+		);
+	}
+
 	if (isAuthenticated && currentPage === 'recorder') {
 		return (
 			<SmartRecorder
@@ -86,6 +139,7 @@ function Dashboard() {
 				onOpenPanel={() => openPage('panel')}
 				onOpenRecorder={() => openPage('recorder')}
 				onOpenIncident={startIncident}
+				onOpenWorkOrder={startWorkOrder}
 			/>
 		);
 	}
@@ -99,6 +153,7 @@ function Dashboard() {
 				onOpenPanel={() => openPage('panel')}
 				onOpenRecorder={() => openPage('recorder')}
 				onOpenIncident={startIncident}
+				onOpenWorkOrder={startWorkOrder}
 				incidentStartedAt={incidentStartedAt}
 				tickets={tickets}
 			/>
