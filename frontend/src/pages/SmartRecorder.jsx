@@ -1,12 +1,16 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import AppSearch from '../components/molecules/AppSearch.jsx';
 import NotificationBell from '../components/molecules/NotificationBell.jsx';
+import RecorderTemplatesModal from '../components/molecules/RecorderTemplatesModal.jsx';
 import UserMenu from '../components/molecules/UserMenu.jsx';
 
 function SmartRecorder({ onOpenPanel, onOpenRecorder, onOpenIncident, onOpenWorkOrder, onLogout, isTicketNotificationUnread, onMarkTicketNotificationRead }) {
   const [note, setNote] = useState('');
   const [isTicketMenuOpen, setIsTicketMenuOpen] = useState(false);
+  const [isTemplatesOpen, setIsTemplatesOpen] = useState(false);
   const [ticketType, setTicketType] = useState('');
+  const noteInputRef = useRef(null);
+  const closeTemplates = useCallback(() => setIsTemplatesOpen(false), []);
 
   useEffect(() => {
     const previousTitle = document.title;
@@ -21,6 +25,26 @@ function SmartRecorder({ onOpenPanel, onOpenRecorder, onOpenIncident, onOpenWork
     setNote('');
     setTicketType('');
     setIsTicketMenuOpen(false);
+    setIsTemplatesOpen(false);
+  };
+
+  const insertTemplate = (template) => {
+    const textarea = noteInputRef.current;
+    const selectionStart = textarea?.selectionStart ?? note.length;
+    const selectionEnd = textarea?.selectionEnd ?? note.length;
+    const prefix = note.slice(0, selectionStart);
+    const suffix = note.slice(selectionEnd);
+    const separatorBefore = prefix && !prefix.endsWith('\n') ? '\n\n' : '';
+    const separatorAfter = suffix && !template.endsWith('\n') ? '\n\n' : '';
+    const nextNote = `${prefix}${separatorBefore}${template}${separatorAfter}${suffix}`;
+    const cursorPosition = prefix.length + separatorBefore.length + template.length;
+
+    setNote(nextNote);
+    setIsTemplatesOpen(false);
+    window.requestAnimationFrame(() => {
+      noteInputRef.current?.focus();
+      noteInputRef.current?.setSelectionRange(cursorPosition, cursorPosition);
+    });
   };
 
   return (
@@ -53,14 +77,33 @@ function SmartRecorder({ onOpenPanel, onOpenRecorder, onOpenIncident, onOpenWork
         <textarea
           className="recorder-note-input"
           onChange={(event) => setNote(event.target.value)}
-          placeholder="Escribe @ para mencionar un colaborador..."
+          placeholder="Escribe @ para mencionar a un colaborador o usa ! para insertar una plantilla..."
+          ref={noteInputRef}
           value={note}
         />
-        <button className="recorder-mention" onClick={() => setNote((current) => `${current}${current ? ' ' : ''}@colaborador`)} type="button">
-          <span className="recorder-mention-mark">@</span>
-          <span>colaborador</span>
-        </button>
+        <div className="recorder-composer-shortcuts" aria-label="Atajos del registrador">
+          <button className="recorder-mention" onClick={() => setNote((current) => `${current}${current ? ' ' : ''}@colaborador`)} type="button">
+            <span className="recorder-mention-mark">@</span>
+            <span>colaborador</span>
+          </button>
+          <button
+            aria-haspopup="dialog"
+            className="recorder-mention recorder-template-trigger"
+            onClick={() => setIsTemplatesOpen(true)}
+            type="button"
+          >
+            <span aria-hidden="true" className="recorder-mention-mark recorder-template-mark">!</span>
+            <span>plantilla</span>
+          </button>
+        </div>
       </section>
+
+      {isTemplatesOpen && (
+        <RecorderTemplatesModal
+          onClose={closeTemplates}
+          onSelect={insertTemplate}
+        />
+      )}
 
       <section className="recorder-workspace" aria-label="Espacio de trabajo">
         <div className="recorder-empty-state">
@@ -69,7 +112,7 @@ function SmartRecorder({ onOpenPanel, onOpenRecorder, onOpenIncident, onOpenWork
             <rect x="18" y="5" width="12" height="8" rx="3" fill="#dce3e8" stroke="currentColor" strokeWidth="3" />
           </svg>
           <h1>Registrador inteligente</h1>
-          <p>Usa <strong>@</strong> para mencionar un colaborador y luego <strong>Crear ticket</strong> para abrir el formulario.</p>
+          <p>Usa <strong>@</strong> para mencionar a un colaborador, <strong>! Plantilla</strong> para insertar una guía o <strong>Crear ticket</strong> para abrir el formulario.</p>
         </div>
         <aside className="recorder-helper">
           <svg className="recorder-helper-icon" viewBox="0 0 64 64" fill="none" aria-hidden="true">
