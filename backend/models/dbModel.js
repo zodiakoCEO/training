@@ -2,11 +2,11 @@ import pool from "../config/db.js";
 
 const dbModel = {
   getUsers: async () => {
-    const [rows] = await pool.query("SELECT * FROM usuarios");
+    const [rows] = await pool.query("SELECT id, name, gmail FROM usuarios");
     return rows;
   },
   getUser: async (id) => {
-    const [rows] = await pool.query("SELECT * FROM usuarios WHERE id = ?", [id]);
+    const [rows] = await pool.query("SELECT id, name, gmail FROM usuarios WHERE id = ?", [id]);
     return rows[0];
   },
   updateUser: async (id, name, gmail) => {
@@ -25,14 +25,19 @@ const dbModel = {
     const [result] = await pool.query(query, values);
     return result;
   },
-  createUser: async (name, gmail, password) => {
-    const [result] = await pool.query("INSERT INTO usuarios (name, gmail, password) VALUES (?, ?, ?)", [name, gmail, password]);
+  createUser: async (name, gmail, passwordHash) => {
+    const [result] = await pool.query(
+      "INSERT INTO usuarios (name, gmail, password) VALUES (?, ?, ?)",
+      [name, gmail, passwordHash],
+    );
     return result;
   },
   deleteUser: async (id) => {
     const [result] = await pool.query("DELETE FROM usuarios WHERE id = ?", [id]);
     return result;
   },
+
 };
+
 
 export default dbModel;

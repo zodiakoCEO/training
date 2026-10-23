@@ -2,7 +2,7 @@ import dbModel from "../models/dbModel.js";
 import bcrypt from "bcrypt";
 
 const isObject = (value) => value !== null && typeof value === "object" && !Array.isArray(value);
-const IsValidPassword =  (password) => value !== null && password.trim() !== "";
+const isValidPassword = (password) => typeof password === "string" && password.trim() !== "";
 const isValidId = (id) => typeof id === "string" && id.trim() !== "";
 const isValidName = (name) => typeof name === "string" && name.trim() !== "";
 const isValidGmail = (gmail) =>
@@ -57,22 +57,27 @@ const userController = {
     try {
       if (!isObject(req.body)) {
         return res.status(400).json({
-          message: "Se requieren un nombre y un correo validos",
+          message: "Se requieren un nombre, un correo y una contrasena validos",
         });
       }
 
       const { name, gmail, password } = req.body;
-      if (!isValidName(name) || !isValidGmail(gmail) || !IsValidPassword(password)) {
+      if (!isValidName(name) || !isValidGmail(gmail) || !isValidPassword(password)) {
         return res.status(400).json({
-          message: "Se requieren un nombre y un correo validos",
+          message: "Se requieren un nombre, un correo y una contrasena validos",
         });
       }
 
-      const result = await dbModel.createUser(name.trim(), gmail.trim(), password.trim());
+      const passwordHash = await bcrypt.hash(password.trim(), 12);
+      const result = await dbModel.createUser(name.trim(), gmail.trim(), passwordHash);
 
       return res.status(201).json({
         message: "Usuario creado con exito...",
-        data: result,
+        data: {
+          id: result.insertId,
+          name: name.trim(),
+          gmail: gmail.trim(),
+        },
       });
     } catch (error) {
       console.error("Error al crear el usuario...", error);

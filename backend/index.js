@@ -4,6 +4,7 @@ import conocimientoRoutes from "./routes/conocimientoRoutes.js";
 import cors from "cors";
 
 const app = express();
+app.use(cors());
 app.use(express.json());
 app.use("/api/users", userRoutes);
 app.use("/api/kbas", conocimientoRoutes);
