@@ -7,4 +7,9 @@ import { defineConfig } from 'vite'
 export default defineConfig({
   cacheDir: join(tmpdir(), 'proyecto-training-frontend-vite'),
   plugins: [react()],
+  server: {
+    proxy: {
+      '/api': 'http://localhost:3001',
+    },
+  },
 })

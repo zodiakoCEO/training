@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import Swal from 'sweetalert2';
 import 'sweetalert2/dist/sweetalert2.min.css';
+import { loginUser } from '../services/api.js';
 
 const BENEFITS = [
   'Gestionar tus primeros tickets de forma simple y organizada.',
@@ -24,6 +25,7 @@ const LOGIN_ALERT_OPTIONS = {
 
 function ProjectLogin({ onBack, onLogin }) {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     const previousTitle = document.title;
@@ -34,8 +36,9 @@ function ProjectLogin({ onBack, onLogin }) {
     };
   }, []);
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
+    if (isSubmitting) return;
 
     const form = event.currentTarget;
     const emailInput = form.elements.namedItem('email');
@@ -75,7 +78,25 @@ function ProjectLogin({ onBack, onLogin }) {
       return;
     }
 
-    onLogin(email);
+    setIsSubmitting(true);
+    try {
+      const user = await loginUser(email, password);
+      onLogin(user);
+    } catch (error) {
+      Swal.fire({
+        ...LOGIN_ALERT_OPTIONS,
+        icon: error.message === 'Correo o contrasena incorrectos' ? 'warning' : 'error',
+        iconColor: error.message === 'Correo o contrasena incorrectos' ? '#ad741e' : '#b42318',
+        title: error.message === 'Correo o contrasena incorrectos'
+          ? 'Credenciales incorrectas'
+          : 'No fue posible iniciar sesión',
+        text: error.message === 'Correo o contrasena incorrectos'
+          ? 'Verifica tu correo y contraseña e inténtalo nuevamente.'
+          : 'No se pudo conectar con el servidor. Inténtalo más tarde.',
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -177,7 +198,9 @@ function ProjectLogin({ onBack, onLogin }) {
                 ¿Olvidaste tu contraseña?
               </button>
             </div>
-            <button className="login-submit" type="submit">Iniciar sesión</button>
+            <button className="login-submit" disabled={isSubmitting} type="submit">
+              {isSubmitting ? 'Validando...' : 'Iniciar sesión'}
+            </button>
 
             <div className="login-security-note">
               <svg aria-hidden="true" viewBox="0 0 20 20" fill="none">
@@ -185,7 +208,7 @@ function ProjectLogin({ onBack, onLogin }) {
                 <path d="M6.5 8V5.8a3.5 3.5 0 0 1 7 0V8" stroke="currentColor" strokeWidth="1.6" />
                 <circle cx="10" cy="12.5" r=".9" fill="currentColor" />
               </svg>
-              <span>Acceso de Proyecto A. La autenticación aún no está conectada.</span>
+              <span>Acceso validado con tu cuenta de Unisys Training.</span>
             </div>
           </form>
         </div>

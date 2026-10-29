@@ -28,6 +28,14 @@ under a named organism folder such as `organisms/project-bar`.
 
 This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
 
+## Conexion con el backend
+
+Inicia el backend en `http://localhost:3001` y el frontend con `npm run dev`.
+Vite redirige las solicitudes `/api` al backend, y el formulario de inicio de
+sesion valida las credenciales en `POST /api/users/login`. Si el backend esta en
+otra direccion, configura `VITE_API_URL` con la URL base de su API terminada en
+`/api` y permite el origen del frontend con `FRONTEND_ORIGIN` en el backend.
+
 Currently, two official plugins are available:
 
 - [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)

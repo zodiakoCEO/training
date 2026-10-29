@@ -3,7 +3,7 @@
 ## Crear un usuario
 
 Inicia el backend con `npm start` y envia una solicitud `POST` a
-`http://localhost:3000/api/users` con `Content-Type: application/json`:
+`http://localhost:3001/api/users` con `Content-Type: application/json`:
 
 ```json
 {
@@ -27,3 +27,24 @@ Los `INSERT` que solo incluyen `name`, como `INSERT INTO usuarios (name) ...`,
 no usan este endpoint y dejan `gmail` y `password` en `NULL` si esas columnas
 permiten valores nulos. Para crear usuarios con los tres campos completos,
 usa este POST; los registros antiguos con valores nulos no se modifican.
+
+## Iniciar sesion desde el frontend
+
+El frontend envia un `POST` a `http://localhost:3001/api/users/login` (en
+desarrollo, Vite redirige `/api` al backend). Envia el correo y la contrasena
+como JSON:
+
+```json
+{
+  "gmail": "duvan@gmail.com",
+  "password": "una-contrasena-segura"
+}
+```
+
+La API compara la contrasena con el hash guardado y responde con los datos
+publicos del usuario. Usa `FRONTEND_ORIGIN` para configurar el origen permitido
+por CORS; acepta varios origenes separados por comas. Por defecto permite
+`http://localhost:5173`.
+
+Para apuntar el frontend a otro backend, define `VITE_API_URL` con la URL base
+que termina en `/api` (por ejemplo, `https://api.ejemplo.com/api`).

@@ -4,7 +4,12 @@ import conocimientoRoutes from "./routes/conocimientoRoutes.js";
 import cors from "cors";
 
 const app = express();
-app.use(cors());
+const allowedOrigins = (process.env.FRONTEND_ORIGIN || "http://localhost:5173")
+  .split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
+app.use(cors({ origin: allowedOrigins }));
 app.use(express.json());
 app.use("/api/users", userRoutes);
 app.use("/api/kbas", conocimientoRoutes);

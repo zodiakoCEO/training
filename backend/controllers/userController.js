@@ -87,6 +87,39 @@ const userController = {
     }
   },
 
+  login: async (req, res) => {
+    try {
+      if (!isObject(req.body)) {
+        return res.status(400).json({ message: "Correo y contrasena son obligatorios" });
+      }
+
+      const { gmail, password } = req.body;
+      if (!isValidGmail(gmail) || !isValidPassword(password)) {
+        return res.status(400).json({ message: "Correo y contrasena son obligatorios" });
+      }
+
+      const user = await dbModel.getUserByGmail(gmail.trim());
+      const passwordMatches = !!user && typeof user.password === "string" && await bcrypt.compare(password, user.password);
+      if (!passwordMatches) {
+        return res.status(401).json({ message: "Correo o contrasena incorrectos" });
+      }
+
+      return res.status(200).json({
+        message: "Inicio de sesion exitoso",
+        data: {
+          id: user.id,
+          name: user.name,
+          gmail: user.gmail,
+        },
+      });
+    } catch (error) {
+      console.error("Error al iniciar sesion...", error);
+      return res.status(500).json({
+        message: "Hubo un error por parte del servidor...",
+      });
+    }
+  },
+
   updateUser: async (req, res) => {
     try {
       const { id } = req.params;

@@ -9,6 +9,13 @@ const dbModel = {
     const [rows] = await pool.query("SELECT id, name, gmail FROM usuarios WHERE id = ?", [id]);
     return rows[0];
   },
+  getUserByGmail: async (gmail) => {
+    const [rows] = await pool.query(
+      "SELECT id, name, gmail, password FROM usuarios WHERE gmail = ?",
+      [gmail],
+    );
+    return rows[0];
+  },
   updateUser: async (id, name, gmail) => {
     let query;
     let values;
