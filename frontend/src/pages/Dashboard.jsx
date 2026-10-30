@@ -10,7 +10,7 @@ import IncidentPage from './IncidentPage.jsx';
 import WorkOrderPage from './WorkOrderPage.jsx';
 
 const INITIAL_PROJECTS = [
-	{ id: 'project-1', name: 'Proyecto A', shape: 'square', loginEnabled: true },
+	{ id: 'project-1', name: 'Bancolombia', shape: 'square', loginEnabled: true },
 	{ id: 'project-2', name: 'Proyecto B', shape: 'circle' },
 ];
 

@@ -1,9 +1,9 @@
 # training
 
-# Credenciales validas para le inicio sesion:
+# Credenciales validas para el inicio sesion:
 # Correo: UnisysCorporation@gmail.com   
-# PWS: UnisysCorportation.
-#
+# PWS: UnisysCorporationAdmin.
+# 
 #
 #
 #

@@ -29,7 +29,7 @@ function ProjectLogin({ onBack, onLogin }) {
 
   useEffect(() => {
     const previousTitle = document.title;
-    document.title = 'Iniciar sesión | Proyecto A';
+    document.title = 'Iniciar sesión | Bancolombia';
 
     return () => {
       document.title = previousTitle;
@@ -128,7 +128,7 @@ function ProjectLogin({ onBack, onLogin }) {
         </p>
       </section>
 
-      <section className="login-form-panel" aria-label="Inicio de sesión de Proyecto A">
+      <section className="login-form-panel" aria-label="Inicio de sesión de Bancolombia">
         <button className="login-back" type="button" onClick={onBack}>
           <svg aria-hidden="true" viewBox="0 0 20 20" fill="none">
             <path d="m12 4-6 6 6 6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
@@ -138,7 +138,7 @@ function ProjectLogin({ onBack, onLogin }) {
         </button>
 
         <div className="login-form-wrap">
-          <p className="login-project-label">Proyecto A</p>
+          <p className="login-project-label">Bancolombia</p>
           <h2>Iniciar sesión</h2>
           <p className="login-subtitle">Accede a tu cuenta empresarial Unisys Training</p>
 
