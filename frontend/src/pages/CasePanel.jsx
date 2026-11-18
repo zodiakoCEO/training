@@ -10,7 +10,7 @@ function formatDuration(durationMs) {
   return `${minutes}:${String(seconds).padStart(2, '0')}`;
 }
 
-function CasePanel({ onOpenPanel, onOpenRecorder, onOpenIncident, onOpenWorkOrder, onLogout, isTicketNotificationUnread, onMarkTicketNotificationRead, tickets, incidentStartedAt }) {
+function CasePanel({ onOpenPanel, onOpenRecorder, onOpenIncident, onOpenWorkOrder, onLogout, isTicketNotificationUnread, onMarkTicketNotificationRead, tickets, incidentStartedAt, user }) {
   const [isTicketMenuOpen, setIsTicketMenuOpen] = useState(false);
   const [ticketType, setTicketType] = useState('');
   const [selectedTicketNumber, setSelectedTicketNumber] = useState('');
@@ -90,7 +90,7 @@ function CasePanel({ onOpenPanel, onOpenRecorder, onOpenIncident, onOpenWorkOrde
             isUnread={isTicketNotificationUnread}
             onMarkAsRead={onMarkTicketNotificationRead}
           />
-          <UserMenu onLogout={onLogout} />
+          <UserMenu onLogout={onLogout} user={user} />
         </div>
       </header>
 

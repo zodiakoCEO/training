@@ -68,6 +68,7 @@ function WorkOrderPage({
   onMarkTicketNotificationRead,
   onSaveWorkOrder,
   ticketNumber,
+  user,
 }) {
   const [workOrder, setWorkOrder] = useState(INITIAL_WORK_ORDER);
   const [errors, setErrors] = useState({});
@@ -262,7 +263,7 @@ function WorkOrderPage({
             isUnread={isTicketNotificationUnread}
             onMarkAsRead={onMarkTicketNotificationRead}
           />
-          <UserMenu onLogout={onLogout} />
+          <UserMenu onLogout={onLogout} user={user} />
         </div>
       </header>
 

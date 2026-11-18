@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import Swal from 'sweetalert2';
 import 'sweetalert2/dist/sweetalert2.min.css';
-import { loginUser } from '../services/api.js';
+import { isDemoLoginEnabled, loginUser } from '../services/api.js';
 
 const BENEFITS = [
   'Gestionar tus primeros tickets de forma simple y organizada.',
@@ -208,7 +208,11 @@ function ProjectLogin({ onBack, onLogin }) {
                 <path d="M6.5 8V5.8a3.5 3.5 0 0 1 7 0V8" stroke="currentColor" strokeWidth="1.6" />
                 <circle cx="10" cy="12.5" r=".9" fill="currentColor" />
               </svg>
-              <span>Acceso validado con tu cuenta de Unisys Training.</span>
+              <span>
+                {isDemoLoginEnabled
+                  ? 'Modo de demostración: los cambios no se guardan y no se conecta al backend.'
+                  : 'Acceso validado con tu cuenta de Unisys Training.'}
+              </span>
             </div>
           </form>
         </div>

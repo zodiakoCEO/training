@@ -1,16 +1,24 @@
 import { useEffect, useRef, useState } from 'react';
 
 const MENU_ITEMS = [
-  { label: 'Mi cuenta', detail: 'jhon.pulido · Administrador' },
+  { label: 'Mi cuenta' },
   { label: 'Configuración', detail: 'Personaliza tus preferencias de cuenta.' },
   { label: 'Notificaciones', detail: 'No tienes notificaciones nuevas.' },
   { label: 'Idioma y región', detail: 'Español · Latinoamérica' },
 ];
 
-function UserMenu({ onLogout }) {
+function UserMenu({ onLogout, user }) {
   const [isOpen, setIsOpen] = useState(false);
   const [activeItem, setActiveItem] = useState(null);
   const menuRef = useRef(null);
+  const displayName = user?.name?.trim() || user?.gmail || 'Usuario';
+  const displayEmail = user?.gmail || '';
+  const initials = displayName
+    .split(/\s+/)
+    .map((part) => part[0])
+    .slice(0, 2)
+    .join('')
+    .toUpperCase();
 
   useEffect(() => {
     if (!isOpen) return undefined;
@@ -48,8 +56,8 @@ function UserMenu({ onLogout }) {
         }}
         type="button"
       >
-        <span className="recorder-avatar">JP</span>
-        <span className="recorder-user-name">Jhon Pulido</span>
+        <span className="recorder-avatar">{initials}</span>
+        <span className="recorder-user-name">{displayName}</span>
         <svg className="recorder-user-chevron" viewBox="0 0 20 20" fill="none" aria-hidden="true">
           <path d="m6 8 4 4 4-4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
@@ -58,10 +66,10 @@ function UserMenu({ onLogout }) {
       {isOpen && (
         <section aria-label="Menú de usuario" className="user-menu-popover">
           <header className="user-menu-profile">
-            <span className="user-menu-profile-avatar">JP</span>
+            <span className="user-menu-profile-avatar">{initials}</span>
             <span className="user-menu-profile-copy">
-              <strong>Jhon Pulido</strong>
-              <span>jhon.pulido · Admin</span>
+              <strong>{displayName}</strong>
+              <span>{displayEmail}</span>
             </span>
             <span className="user-menu-status" aria-label="En línea" />
           </header>
@@ -88,7 +96,10 @@ function UserMenu({ onLogout }) {
                 <button
                   className="user-menu-option"
                   key={item.label}
-                  onClick={() => setActiveItem(item)}
+                  onClick={() => setActiveItem({
+                    ...item,
+                    detail: item.label === 'Mi cuenta' ? displayEmail : item.detail,
+                  })}
                   role="menuitem"
                   style={{ '--menu-item-index': index }}
                   type="button"

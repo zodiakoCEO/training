@@ -92,6 +92,7 @@ function IncidentPage({
   onMarkTicketNotificationRead,
   onSaveIncident,
   ticketNumber,
+  user,
 }) {
   const [incident, setIncident] = useState(INITIAL_INCIDENT);
   const [errors, setErrors] = useState({});
@@ -315,7 +316,7 @@ function IncidentPage({
             isUnread={isTicketNotificationUnread}
             onMarkAsRead={onMarkTicketNotificationRead}
           />
-          <UserMenu onLogout={onLogout} />
+          <UserMenu onLogout={onLogout} user={user} />
         </div>
       </header>
 

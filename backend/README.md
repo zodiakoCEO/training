@@ -14,8 +14,8 @@ Inicia el backend con `npm start` y envia una solicitud `POST` a
 ```
 
 El servidor responde con estado `201` y los datos publicos del usuario creado.
-La contrasena se guarda con hash y nunca se incluye en la respuesta ni en las
-consultas de usuarios.
+La contrasena se guarda con bcrypt usando un factor de costo (salt rounds) de
+10 y nunca se incluye en la respuesta ni en las consultas de usuarios.
 
 Los tres campos son obligatorios. Si falta alguno o tiene un formato invalido,
 la API responde con `400`. Asegurate tambien de configurar las variables de

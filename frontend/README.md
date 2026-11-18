@@ -36,6 +36,21 @@ sesion valida las credenciales en `POST /api/users/login`. Si el backend esta en
 otra direccion, configura `VITE_API_URL` con la URL base de su API terminada en
 `/api` y permite el origen del frontend con `FRONTEND_ORIGIN` en el backend.
 
+## Modo de demostración en Vercel
+
+Mientras el backend y MySQL no estén desplegados, puedes habilitar el acceso de
+demostración definiendo `VITE_DEMO_LOGIN=true` en las variables de entorno del
+proyecto de Vercel y volviendo a desplegar. El formulario aceptará:
+
+- Correo: `testing@gmail.com`
+- Contraseña: `testing123`
+
+Con esta opción activa, el frontend no llama al backend para iniciar sesión. La
+sesión y sus cambios son solo de demostración, se mantienen en memoria y no se
+guardan. Desactiva o elimina `VITE_DEMO_LOGIN` al configurar la autenticación
+real. Estas credenciales se incluyen en el JavaScript público del frontend y no
+deben usarse para proteger datos ni para una cuenta real.
+
 Currently, two official plugins are available:
 
 - [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)

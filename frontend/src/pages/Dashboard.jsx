@@ -17,6 +17,7 @@ const INITIAL_PROJECTS = [
 function Dashboard() {
 	const [projects, setProjects] = useState(INITIAL_PROJECTS);
 	const [isAuthenticated, setIsAuthenticated] = useState(false);
+	const [authenticatedUser, setAuthenticatedUser] = useState(null);
 	const [isLoggingOut, setIsLoggingOut] = useState(false);
 	const [currentPage, setCurrentPage] = useState('projects');
 	const [tickets, setTickets] = useState([]);
@@ -32,6 +33,7 @@ function Dashboard() {
 		setIsLoggingOut(true);
 		logoutTimerRef.current = window.setTimeout(() => {
 			setIsAuthenticated(false);
+			setAuthenticatedUser(null);
 			setCurrentPage('projects');
 			setTickets([]);
 			setIncidentStartedAt(null);
@@ -91,7 +93,8 @@ function Dashboard() {
 		return (
 			<ProjectLogin
 				onBack={() => openPage('projects')}
-				onLogin={() => {
+				onLogin={(user) => {
+					setAuthenticatedUser(user);
 					setIsAuthenticated(true);
 					openPage('recorder');
 				}}
@@ -102,6 +105,7 @@ function Dashboard() {
 	if (isAuthenticated && currentPage === 'incident') {
 		return (
 			<IncidentPage
+				user={authenticatedUser}
 				isTicketNotificationUnread={isTicketNotificationUnread}
 				onMarkTicketNotificationRead={() => setIsTicketNotificationUnread(false)}
 				onLogout={handleLogout}
@@ -119,6 +123,7 @@ function Dashboard() {
 	if (isAuthenticated && currentPage === 'work-order') {
 		return (
 			<WorkOrderPage
+				user={authenticatedUser}
 				isTicketNotificationUnread={isTicketNotificationUnread}
 				onMarkTicketNotificationRead={() => setIsTicketNotificationUnread(false)}
 				onLogout={handleLogout}
@@ -133,6 +138,7 @@ function Dashboard() {
 	if (isAuthenticated && currentPage === 'recorder') {
 		return (
 			<SmartRecorder
+				user={authenticatedUser}
 				isTicketNotificationUnread={isTicketNotificationUnread}
 				onMarkTicketNotificationRead={() => setIsTicketNotificationUnread(false)}
 				onLogout={handleLogout}
@@ -147,6 +153,7 @@ function Dashboard() {
 	if (isAuthenticated) {
 		return (
 			<CasePanel
+				user={authenticatedUser}
 				isTicketNotificationUnread={isTicketNotificationUnread}
 				onMarkTicketNotificationRead={() => setIsTicketNotificationUnread(false)}
 				onLogout={handleLogout}

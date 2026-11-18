@@ -4,7 +4,7 @@ import NotificationBell from '../components/molecules/NotificationBell.jsx';
 import RecorderTemplatesModal from '../components/molecules/RecorderTemplatesModal.jsx';
 import UserMenu from '../components/molecules/UserMenu.jsx';
 
-function SmartRecorder({ onOpenPanel, onOpenRecorder, onOpenIncident, onOpenWorkOrder, onLogout, isTicketNotificationUnread, onMarkTicketNotificationRead }) {
+function SmartRecorder({ onOpenPanel, onOpenRecorder, onOpenIncident, onOpenWorkOrder, onLogout, isTicketNotificationUnread, onMarkTicketNotificationRead, user }) {
   const [note, setNote] = useState('');
   const [isTicketMenuOpen, setIsTicketMenuOpen] = useState(false);
   const [isTemplatesOpen, setIsTemplatesOpen] = useState(false);
@@ -69,7 +69,7 @@ function SmartRecorder({ onOpenPanel, onOpenRecorder, onOpenIncident, onOpenWork
             isUnread={isTicketNotificationUnread}
             onMarkAsRead={onMarkTicketNotificationRead}
           />
-          <UserMenu onLogout={onLogout} />
+          <UserMenu onLogout={onLogout} user={user} />
         </div>
       </header>
 

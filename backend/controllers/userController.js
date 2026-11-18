@@ -68,7 +68,7 @@ const userController = {
         });
       }
 
-      const passwordHash = await bcrypt.hash(password.trim(), 12);
+      const passwordHash = await bcrypt.hash(password, 10);
       const result = await dbModel.createUser(name.trim(), gmail.trim(), passwordHash);
 
       return res.status(201).json({
