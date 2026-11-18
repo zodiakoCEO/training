@@ -1,5 +1,6 @@
 const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
-export const isDemoLoginEnabled = import.meta.env.VITE_DEMO_LOGIN === 'true';
+export const isDemoLoginEnabled =
+  import.meta.env.VITE_DEMO_LOGIN?.trim().toLowerCase() === 'true';
 
 const DEMO_USER = {
   gmail: 'testing@gmail.com',
@@ -8,7 +9,8 @@ const DEMO_USER = {
 
 export async function loginUser(gmail, password) {
   if (isDemoLoginEnabled) {
-    if (gmail.trim().toLowerCase() !== DEMO_USER.gmail || password !== DEMO_USER.password) {
+    const normalizedGmail = gmail.trim().toLowerCase();
+    if (normalizedGmail !== DEMO_USER.gmail || password !== DEMO_USER.password) {
       throw new Error('Correo o contrasena incorrectos');
     }
 

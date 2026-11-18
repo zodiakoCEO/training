@@ -38,18 +38,21 @@ otra direccion, configura `VITE_API_URL` con la URL base de su API terminada en
 
 ## Modo de demostración en Vercel
 
-Mientras el backend y MySQL no estén desplegados, puedes habilitar el acceso de
-demostración definiendo `VITE_DEMO_LOGIN=true` en las variables de entorno del
-proyecto de Vercel y volviendo a desplegar. El formulario aceptará:
+Mientras el backend y MySQL no estén desplegados, el frontend activa el acceso
+de demostración en producción mediante `.env.production`. Vercel debe desplegar
+la carpeta `frontend` para que Vite cargue esa configuración. El formulario
+aceptará:
 
 - Correo: `testing@gmail.com`
 - Contraseña: `testing123`
 
 Con esta opción activa, el frontend no llama al backend para iniciar sesión. La
 sesión y sus cambios son solo de demostración, se mantienen en memoria y no se
-guardan. Desactiva o elimina `VITE_DEMO_LOGIN` al configurar la autenticación
-real. Estas credenciales se incluyen en el JavaScript público del frontend y no
-deben usarse para proteger datos ni para una cuenta real.
+guardan. Una variable `VITE_DEMO_LOGIN=false` configurada en Vercel desactiva el
+modo demo y prevalece sobre `.env.production`; elimínala o cámbiala a `true` para
+la demo. Cuando configures la autenticación real, establece `false` y vuelve a
+desplegar. Estas credenciales se incluyen en el JavaScript público del frontend
+y no deben usarse para proteger datos ni para una cuenta real.
 
 Currently, two official plugins are available:
 
