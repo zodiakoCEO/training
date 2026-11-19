@@ -127,7 +127,7 @@ function SmartRecorder({ onOpenPanel, onOpenRecorder, onOpenIncident, onOpenWork
         <div className="recorder-create-wrap">
           {isTicketMenuOpen && (
             <div className="recorder-ticket-menu" role="menu">
-              {['Incidente', 'Orden de trabajo', 'Consulta'].map((type) => (
+              {['Incidente', 'Orden de trabajo'].map((type) => (
                 <button
                   key={type}
                   onClick={() => {

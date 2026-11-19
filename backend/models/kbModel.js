@@ -2,12 +2,17 @@ import pool from "../config/db.js";
 
 const kbModel = {
   getKBS: async () => {
-    const [rows] = await pool.query("SELECT * FROM kbas");
+    const [rows] = await pool.query(
+      "SELECT id, codigo, titulo, estado, version, fecha, calificacion, vistas, tickets FROM kbas",
+    );
     return rows;
   },
 
   getKB: async (id) => {
-    const [rows] = await pool.query("SELECT * FROM kbas WHERE id = ?", [id]);
+    const [rows] = await pool.query(
+      "SELECT id, codigo, titulo, estado, version, fecha, calificacion, vistas, tickets FROM kbas WHERE id = ?",
+      [id],
+    );
     return rows[0];
   },
 

@@ -12,12 +12,30 @@ function CreateProjectModal({ project, onClose, onSave }) {
 
   useEffect(() => {
     const previousOverflow = document.body.style.overflow;
+    const previouslyFocusedElement = document.activeElement;
     document.body.style.overflow = 'hidden';
     nameInputRef.current?.focus();
 
     const handleKeyDown = (event) => {
       if (event.key === 'Escape') {
         onClose();
+        return;
+      }
+      if (event.key !== 'Tab') return;
+
+      const focusableElements = document.querySelectorAll(
+        '.project-modal button:not(:disabled), .project-modal input:not(:disabled)',
+      );
+      if (!focusableElements.length) return;
+
+      const firstElement = focusableElements[0];
+      const lastElement = focusableElements[focusableElements.length - 1];
+      if (event.shiftKey && document.activeElement === firstElement) {
+        event.preventDefault();
+        lastElement.focus();
+      } else if (!event.shiftKey && document.activeElement === lastElement) {
+        event.preventDefault();
+        firstElement.focus();
       }
     };
 
@@ -26,6 +44,7 @@ function CreateProjectModal({ project, onClose, onSave }) {
     return () => {
       document.body.style.overflow = previousOverflow;
       window.removeEventListener('keydown', handleKeyDown);
+      previouslyFocusedElement?.focus();
     };
   }, [onClose]);
 

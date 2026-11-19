@@ -28,6 +28,13 @@ under a named organism folder such as `organisms/project-bar`.
 
 This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
 
+## Gráficas del panel
+
+El análisis de tickets usa Recharts para comparar el ticket seleccionado con el
+promedio de los tickets de la sesión, en tiempo de creación o porcentaje de
+campos obligatorios completados. El componente se carga de forma diferida para
+mantener la gráfica fuera del paquete inicial de la aplicación.
+
 ## Conexion con el backend
 
 Inicia el backend en `http://localhost:3001` y el frontend con `npm run dev`.
@@ -38,21 +45,20 @@ otra direccion, configura `VITE_API_URL` con la URL base de su API terminada en
 
 ## Modo de demostración en Vercel
 
-Mientras el backend y MySQL no estén desplegados, el frontend activa el acceso
+Mientras el backend y MySQL no estén desplegados, el frontend activa el modo
 de demostración en producción mediante `.env.production`. Vercel debe desplegar
-la carpeta `frontend` para que Vite cargue esa configuración. El formulario
-aceptará:
+la carpeta `frontend` para que Vite cargue esa configuración. La cuenta de
+prueba funciona incluso si `VITE_DEMO_LOGIN=false` está configurada en Vercel;
+el formulario acepta:
 
 - Correo: `testing@gmail.com`
 - Contraseña: `testing123`
 
-Con esta opción activa, el frontend no llama al backend para iniciar sesión. La
-sesión y sus cambios son solo de demostración, se mantienen en memoria y no se
-guardan. Una variable `VITE_DEMO_LOGIN=false` configurada en Vercel desactiva el
-modo demo y prevalece sobre `.env.production`; elimínala o cámbiala a `true` para
-la demo. Cuando configures la autenticación real, establece `false` y vuelve a
-desplegar. Estas credenciales se incluyen en el JavaScript público del frontend
-y no deben usarse para proteger datos ni para una cuenta real.
+Al iniciar sesión con esta cuenta, el frontend no llama al backend. La sesión y
+sus cambios son solo de demostración, se mantienen en memoria y no se guardan.
+`VITE_DEMO_LOGIN=false` desactiva el modo demo para otras cuentas, pero no la
+cuenta de prueba. Estas credenciales se incluyen en el JavaScript público del
+frontend y no deben usarse para proteger datos ni para una cuenta real.
 
 Currently, two official plugins are available:
 

@@ -84,6 +84,9 @@ const FIELD_OPTIONS = {
   supportGroup: ['Mesa de ayuda', 'Soporte de aplicaciones', 'Infraestructura', 'Redes'],
 };
 
+const isValidPhone = (phone) =>
+  /^[+\d\s().-]{7,20}$/.test(phone) && phone.replace(/\D/g, '').length >= 7;
+
 function IncidentPage({
   onOpenPanel,
   onOpenRecorder,
@@ -98,9 +101,8 @@ function IncidentPage({
   const [errors, setErrors] = useState({});
   const [feedback, setFeedback] = useState('');
   const [activeTab, setActiveTab] = useState('resources');
-  const [documentPage, setDocumentPage] = useState(1);
-  const [ticketPage, setTicketPage] = useState(1);
   const [attachments, setAttachments] = useState([]);
+  const [pinnedDocumentIds, setPinnedDocumentIds] = useState(() => new Set());
   const [affectedAreas, setAffectedAreas] = useState([]);
   const [commentDraft, setCommentDraft] = useState('');
   const [isCommentPublic, setIsCommentPublic] = useState(false);
@@ -162,7 +164,13 @@ function IncidentPage({
     if (!text) return;
 
     setComments((current) => [
-      { id: `${Date.now()}-${current.length}`, text, isPublic: isCommentPublic },
+      {
+        id: `${Date.now()}-${current.length}`,
+        text,
+        isPublic: isCommentPublic,
+        author: user?.name?.trim() || user?.gmail || 'Usuario',
+        createdAt: new Date().toISOString(),
+      },
       ...current,
     ]);
     setCommentDraft('');
@@ -171,8 +179,20 @@ function IncidentPage({
 
   const isRequiredFieldComplete = (field) => {
     if (!String(incident[field]).trim()) return false;
-    if (field === 'clientPhone') return /^[+\d\s().-]{7,20}$/.test(incident.clientPhone.trim());
+    if (field === 'clientPhone') return isValidPhone(incident.clientPhone.trim());
     return true;
+  };
+
+  const togglePinnedDocument = (documentId) => {
+    setPinnedDocumentIds((current) => {
+      const next = new Set(current);
+      if (next.has(documentId)) {
+        next.delete(documentId);
+      } else {
+        next.add(documentId);
+      }
+      return next;
+    });
   };
 
   const saveIncident = (event) => {
@@ -181,8 +201,11 @@ function IncidentPage({
     Object.entries(REQUIRED_FIELDS).forEach(([field, message]) => {
       if (!String(incident[field]).trim()) nextErrors[field] = message;
     });
-    if (incident.clientPhone && !/^[+\d\s().-]{7,20}$/.test(incident.clientPhone.trim())) {
+    if (incident.clientPhone && !isValidPhone(incident.clientPhone.trim())) {
       nextErrors.clientPhone = 'Ingresa un teléfono válido.';
+    }
+    if (incident.contactPhone && !isValidPhone(incident.contactPhone.trim())) {
+      nextErrors.contactPhone = 'Ingresa un teléfono de contacto válido.';
     }
     if (incident.clientEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(incident.clientEmail.trim())) {
       nextErrors.clientEmail = 'Ingresa un correo electrónico válido.';
@@ -201,6 +224,9 @@ function IncidentPage({
     onSaveIncident({
       ...incident,
       number: ticketNumber,
+      attachments,
+      affectedAreas,
+      comments,
       requiredFieldsCompleted: REQUIRED_FIELD_LABELS.filter(([field]) => isRequiredFieldComplete(field)).length,
       requiredFieldsTotal: REQUIRED_FIELD_LABELS.length,
       createdAt: new Date().toISOString(),
@@ -385,10 +411,14 @@ function IncidentPage({
               <aside className="incident-required-legend" aria-label="Leyenda de campos obligatorios">
                 <h3>Campos obligatorios</h3>
                 <ul>
-                  {REQUIRED_FIELD_LABELS.map(([field, label]) => {
+                  {REQUIRED_FIELD_LABELS.map(([field, label], index) => {
                     const isComplete = isRequiredFieldComplete(field);
                     return (
-                      <li className={isComplete ? 'incident-required-item incident-required-item--complete' : 'incident-required-item'} key={field}>
+                      <li
+                        className={isComplete ? 'incident-required-item incident-required-item--complete' : 'incident-required-item'}
+                        key={field}
+                        style={{ '--required-index': index }}
+                      >
                         <span aria-label={isComplete ? 'Completo' : 'Pendiente'} className="incident-required-indicator" />
                         <span>{label} es un campo obligatorio</span>
                       </li>
@@ -519,8 +549,10 @@ function IncidentPage({
                   {comments.length > 0 ? comments.map((comment) => (
                     <article className="incident-comment" key={comment.id}>
                       <div className="incident-comment-meta">
-                        <strong>Jhon Pulido</strong>
-                        <span>{comment.isPublic ? 'Público' : 'Interno'} · Ahora</span>
+                        <strong>{comment.author}</strong>
+                        <span>
+                          {comment.isPublic ? 'Público' : 'Interno'} · {new Date(comment.createdAt).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })}
+                        </span>
                       </div>
                       <p>{comment.text}</p>
                     </article>
@@ -532,7 +564,7 @@ function IncidentPage({
             ) : (
               <div role="tabpanel">
                 <section className="incident-resource-section">
-                  <button className="incident-resource-action" onClick={() => setFeedback('Buscando posibles causas relacionadas con la incidencia.')} type="button">
+                  <button className="incident-resource-action" onClick={() => setFeedback('La consulta de interrupciones aún no está conectada.')} type="button">
                     Explorar posibles causas
                   </button>
                   <h2>Interrupciones de servicio</h2>
@@ -540,51 +572,56 @@ function IncidentPage({
                 </section>
                 <section className="incident-resource-section">
                   <div className="incident-resource-heading">
-                    <h2>Documentos recomendados (15)</h2>
+                    <h2>Documentos de demostración ({RESOURCE_DOCUMENTS.length})</h2>
                   </div>
-                  <button className="incident-resource-action" onClick={() => setFeedback('Búsqueda de recursos de conocimiento lista.')} type="button">
+                  <button className="incident-resource-action" onClick={() => setFeedback('La búsqueda de recursos aún no está conectada.')} type="button">
                     Buscar recursos de conocimientos
                   </button>
                   <div className="incident-resource-pagination">
-                    <span>Registros desde {(documentPage - 1) * 4 + 1} hasta {Math.min(documentPage * 4, 15)} de 15</span>
-                    <button type="button">▽ Todo</button>
+                    <span>Mostrando {RESOURCE_DOCUMENTS.length} documentos de demostración</span>
+                    <span aria-live="polite">
+                      {pinnedDocumentIds.size} fijados · solo esta sesión
+                    </span>
                   </div>
                   <ul className="incident-resource-list">
-                    {RESOURCE_DOCUMENTS.map(([id, title, score, views, tickets]) => (
-                      <li key={id}>
-                        <span className="incident-resource-checkbox" aria-hidden="true" />
-                        <div>
-                          <strong>{id}</strong>
-                          <a href="#incident-resources" onClick={(event) => event.preventDefault()}>{title}</a>
-                          <span className="incident-resource-meta">Estado: Publicado</span>
-                          <span className="incident-resource-meta">Version 1 · 15/10/2026</span>
-                          <span className="incident-resource-stats">{score} &nbsp; {views} &nbsp; {tickets}</span>
-                        </div>
-                      </li>
-                    ))}
+                    {[...RESOURCE_DOCUMENTS]
+                      .sort(([firstId], [secondId]) => (
+                        Number(pinnedDocumentIds.has(secondId)) - Number(pinnedDocumentIds.has(firstId))
+                      ))
+                      .map(([id, title, score, views, tickets]) => {
+                        const isPinned = pinnedDocumentIds.has(id);
+                        return (
+                          <li key={id}>
+                            <button
+                              aria-label={`${isPinned ? 'Quitar fijado de' : 'Fijar'} ${id}`}
+                              aria-pressed={isPinned}
+                              className={`incident-resource-pin${isPinned ? ' incident-resource-pin--active' : ''}`}
+                              onClick={() => togglePinnedDocument(id)}
+                              title={isPinned ? 'Quitar de documentos fijados' : 'Fijar documento'}
+                              type="button"
+                            >
+                              <svg aria-hidden="true" viewBox="0 0 20 20" fill="none">
+                                <path d="m7 3 6 0 0 4 2.5 3v1H4.5v-1L7 7V3Zm3 8v6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+                              </svg>
+                            </button>
+                            <div>
+                              <strong>{id}</strong>
+                              <a href="#incident-resources" onClick={(event) => event.preventDefault()}>{title}</a>
+                              <span className="incident-resource-meta">Estado: Publicado</span>
+                              <span className="incident-resource-meta">Version 1 · 15/10/2026</span>
+                              <span className="incident-resource-stats">{score} &nbsp; {views} &nbsp; {tickets}</span>
+                            </div>
+                          </li>
+                        );
+                      })}
                   </ul>
-                  <div className="incident-pagination-controls" aria-label="Páginas de documentos">
-                    <button disabled={documentPage === 1} onClick={() => setDocumentPage((page) => Math.max(1, page - 1))} type="button">‹</button>
-                    {[1, 2, 3, 4].map((page) => (
-                      <button
-                        aria-current={documentPage === page ? 'page' : undefined}
-                        className={documentPage === page ? 'incident-page-number incident-page-number--active' : 'incident-page-number'}
-                        key={page}
-                        onClick={() => setDocumentPage(page)}
-                        type="button"
-                      >{page}</button>
-                    ))}
-                    <button disabled={documentPage === 4} onClick={() => setDocumentPage((page) => Math.min(4, page + 1))} type="button">›</button>
-                  </div>
                 </section>
                 <section className="incident-resource-section incident-recommended-tickets">
                   <div className="incident-resource-heading">
-                    <h2>Tickets recomendados (15)</h2>
-                    <button type="button">Avanzado</button>
+                    <h2>Tickets de demostración ({RECOMMENDED_TICKETS.length})</h2>
                   </div>
                   <div className="incident-resource-pagination">
-                    <span>Registros desde {(ticketPage - 1) * 4 + 1} hasta {ticketPage * 4} de 15</span>
-                    <button type="button">Marcar como duplicado</button>
+                    <span>Mostrando {RECOMMENDED_TICKETS.length} tickets de demostración</span>
                   </div>
                   {RECOMMENDED_TICKETS.map(([id, title]) => (
                     <article className="incident-ticket-card" key={id}>
@@ -592,19 +629,6 @@ function IncidentPage({
                       <div><strong>{id}</strong><span>{title}</span><small>Actualizado: 15/10/2026</small></div>
                     </article>
                   ))}
-                  <div className="incident-pagination-controls" aria-label="Páginas de tickets">
-                    <button disabled={ticketPage === 1} onClick={() => setTicketPage((page) => Math.max(1, page - 1))} type="button">‹</button>
-                    {[1, 2, 3, 4].map((page) => (
-                      <button
-                        aria-current={ticketPage === page ? 'page' : undefined}
-                        className={ticketPage === page ? 'incident-page-number incident-page-number--active' : 'incident-page-number'}
-                        key={page}
-                        onClick={() => setTicketPage(page)}
-                        type="button"
-                      >{page}</button>
-                    ))}
-                    <button disabled={ticketPage === 4} onClick={() => setTicketPage((page) => Math.min(4, page + 1))} type="button">›</button>
-                  </div>
                 </section>
               </div>
             )}
@@ -613,8 +637,8 @@ function IncidentPage({
       </div>
 
       {feedback && (
-        <div className={errors && Object.keys(errors).length ? 'incident-page-feedback incident-page-feedback--error' : 'incident-page-feedback'} role="status">
-          <span aria-hidden="true">{Object.keys(errors).length ? '!' : '✓'}</span>
+        <div className={Object.values(errors).some(Boolean) ? 'incident-page-feedback incident-page-feedback--error' : 'incident-page-feedback'} role="status">
+          <span aria-hidden="true">{Object.values(errors).some(Boolean) ? '!' : '✓'}</span>
           {feedback}
           <button aria-label="Cerrar mensaje" onClick={() => setFeedback('')} type="button">×</button>
         </div>

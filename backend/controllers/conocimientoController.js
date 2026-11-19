@@ -21,7 +21,10 @@ const isValidKBA = (body, fields) => {
       return isValidId(value);
     }
     if (["calificacion", "vistas", "tickets"].includes(field)) {
-      return typeof value === "number" && Number.isFinite(value) && value >= 0;
+      return typeof value === "number" &&
+        Number.isFinite(value) &&
+        value >= 0 &&
+        (!["vistas", "tickets"].includes(field) || Number.isInteger(value));
     }
     return typeof value === "string" && value.trim() !== "";
   });
@@ -81,6 +84,9 @@ const conocimientoController = {
         data: { id: result.insertId || id },
       });
     } catch (error) {
+      if (error.code === "ER_DUP_ENTRY") {
+        return res.status(409).json({ message: "Ya existe un articulo con ese identificador" });
+      }
       console.error("Error al crear el articulo de conocimiento", error);
       return res.status(500).json({
         message: "Hubo un error al crear el articulo de conocimiento",
@@ -110,6 +116,9 @@ const conocimientoController = {
         data: result,
       });
     } catch (error) {
+      if (error.code === "ER_DUP_ENTRY") {
+        return res.status(409).json({ message: "Ya existe un articulo con esos datos unicos" });
+      }
       console.error("Error al actualizar el articulo de conocimiento", error);
       return res.status(500).json({
         message: "Hubo un error al actualizar el articulo de conocimiento",

@@ -180,10 +180,6 @@ function ProjectLogin({ onBack, onLogin }) {
             </div>
 
             <div className="login-options">
-              <label className="remember-option">
-                <input type="checkbox" name="remember" />
-                <span>Recordarme</span>
-              </label>
               <button
                 className="forgot-password"
                 onClick={() => Swal.fire({
@@ -211,7 +207,7 @@ function ProjectLogin({ onBack, onLogin }) {
               <span>
                 {isDemoLoginEnabled
                   ? 'Modo de demostración: los cambios no se guardan y no se conecta al backend.'
-                  : 'Acceso validado con tu cuenta de Unisys Training.'}
+                  : 'La cuenta de prueba permite acceder sin backend; sus cambios no se guardan.'}
               </span>
             </div>
           </form>

@@ -1,9 +1,25 @@
-# API de usuarios
+# API del backend
+
+## Configuración
+
+Inicia el servidor con `npm start`; el puerto predeterminado es `3001`. Copia
+`.env.example` a `.env` para desarrollo y define las variables requeridas. En
+producción configura `HOST_DB`, `NAME_DB`, `PORT_DB`, `USER_DB`, `PASSWORD_DB`,
+`JWT_SECRET`, `ADMIN_EMAILS` y `FRONTEND_ORIGIN` como variables privadas del
+proveedor. `JWT_SECRET` debe tener al menos 32 bytes aleatorios. `ADMIN_EMAILS`
+es una lista separada por comas; el servidor no inicia en producción sin al
+menos un correo administrador válido. No guardes `.env` en Git.
+
+La tabla `usuarios` debe tener `id`, `name`, `gmail` y `password`. La columna
+`usuarios.gmail` debe tener un índice `UNIQUE` para evitar duplicados incluso
+ante solicitudes concurrentes. Normaliza los correos existentes a minúsculas
+antes de agregar ese índice.
 
 ## Crear un usuario
 
-Inicia el backend con `npm start` y envia una solicitud `POST` a
-`http://localhost:3001/api/users` con `Content-Type: application/json`:
+La creación de usuarios requiere un token de administrador. Envía un `POST` a
+`http://localhost:3001/api/users` con `Content-Type: application/json` y
+`Authorization: Bearer <token>`:
 
 ```json
 {
@@ -13,26 +29,15 @@ Inicia el backend con `npm start` y envia una solicitud `POST` a
 }
 ```
 
-El servidor responde con estado `201` y los datos publicos del usuario creado.
-La contrasena se guarda con bcrypt usando un factor de costo (salt rounds) de
-10 y nunca se incluye en la respuesta ni en las consultas de usuarios.
+Los tres campos son obligatorios; los datos inválidos responden `400` y un
+correo existente responde `409`. Las contraseñas se guardan con bcrypt (10 salt
+rounds), deben caber en 72 bytes UTF-8 y nunca se incluyen en las respuestas.
+Los correos se normalizan a minúsculas.
 
-Los tres campos son obligatorios. Si falta alguno o tiene un formato invalido,
-la API responde con `400`. Asegurate tambien de configurar las variables de
-conexion a MySQL (`HOST_DB`, `NAME_DB`, `PORT_DB`, `USER_DB` y `PASSWORD_DB`)
-en el archivo `.env` del backend. La tabla `usuarios` debe tener las columnas
-`id`, `name`, `gmail` y `password`.
+## Iniciar sesión y permisos
 
-Los `INSERT` que solo incluyen `name`, como `INSERT INTO usuarios (name) ...`,
-no usan este endpoint y dejan `gmail` y `password` en `NULL` si esas columnas
-permiten valores nulos. Para crear usuarios con los tres campos completos,
-usa este POST; los registros antiguos con valores nulos no se modifican.
-
-## Iniciar sesion desde el frontend
-
-El frontend envia un `POST` a `http://localhost:3001/api/users/login` (en
-desarrollo, Vite redirige `/api` al backend). Envia el correo y la contrasena
-como JSON:
+Envía el correo y la contraseña en JSON mediante
+`POST http://localhost:3001/api/users/login`:
 
 ```json
 {
@@ -41,10 +46,18 @@ como JSON:
 }
 ```
 
-La API compara la contrasena con el hash guardado y responde con los datos
-publicos del usuario. Usa `FRONTEND_ORIGIN` para configurar el origen permitido
-por CORS; acepta varios origenes separados por comas. Por defecto permite
-`http://localhost:5173`.
+La respuesta contiene los datos públicos del usuario y un token Bearer que
+vence en 15 minutos. El rol `admin` se asigna únicamente a correos incluidos en
+`ADMIN_EMAILS`; los demás usuarios reciben el rol `user`. El rol se firma en el
+token y no se acepta desde el cuerpo de una solicitud.
 
-Para apuntar el frontend a otro backend, define `VITE_API_URL` con la URL base
-que termina en `/api` (por ejemplo, `https://api.ejemplo.com/api`).
+Todos los endpoints de usuarios, salvo login, requieren un administrador. La
+lectura de la base de conocimiento requiere inicio de sesión; crear, actualizar
+o borrar artículos requiere un administrador. El frontend no guarda el token
+en `localStorage`.
+
+Configura `FRONTEND_ORIGIN` con los dominios permitidos separados por comas. En
+producción debe incluir al menos un origen HTTPS sin rutas. En desarrollo, por
+defecto permite `http://localhost:5173`. Para apuntar el frontend a otro
+backend, define `VITE_API_URL` con una URL que termine en `/api` (por ejemplo,
+`https://api.ejemplo.com/api`).

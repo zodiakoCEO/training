@@ -60,6 +60,9 @@ const FIELD_OPTIONS = {
   managerSupportGroup: ['Mesa de ayuda', 'Soporte de aplicaciones', 'Infraestructura', 'Redes'],
 };
 
+const isValidPhone = (phone) =>
+  /^[+\d\s().-]{7,20}$/.test(phone) && phone.replace(/\D/g, '').length >= 7;
+
 function WorkOrderPage({
   onOpenPanel,
   onOpenRecorder,
@@ -135,7 +138,13 @@ function WorkOrderPage({
     const text = commentDraft.trim();
     if (!text) return;
     setComments((current) => [
-      { id: `${Date.now()}-${current.length}`, text, isPublic: isCommentPublic },
+      {
+        id: `${Date.now()}-${current.length}`,
+        text,
+        isPublic: isCommentPublic,
+        author: user?.name?.trim() || user?.gmail || 'Usuario',
+        createdAt: new Date().toISOString(),
+      },
       ...current,
     ]);
     setCommentDraft('');
@@ -148,8 +157,22 @@ function WorkOrderPage({
     Object.entries(REQUIRED_FIELDS).forEach(([field, message]) => {
       if (!String(workOrder[field]).trim()) nextErrors[field] = message;
     });
+    for (const [startField, endField, endLabel] of [
+      ['plannedStart', 'plannedEnd', 'La fecha de fin programada'],
+      ['actualStart', 'actualEnd', 'La fecha de fin real'],
+    ]) {
+      if (workOrder[startField] && workOrder[endField] && workOrder[endField] < workOrder[startField]) {
+        nextErrors[endField] = `${endLabel} no puede ser anterior a la fecha de inicio.`;
+      }
+    }
     if (workOrder.clientEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(workOrder.clientEmail.trim())) {
       nextErrors.clientEmail = 'Ingresa un correo electrónico válido.';
+    }
+    if (workOrder.clientPhone && !isValidPhone(workOrder.clientPhone.trim())) {
+      nextErrors.clientPhone = 'Ingresa un teléfono válido.';
+    }
+    if (workOrder.contactPhone && !isValidPhone(workOrder.contactPhone.trim())) {
+      nextErrors.contactPhone = 'Ingresa un teléfono de contacto válido.';
     }
     if (workOrder.contactEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(workOrder.contactEmail.trim())) {
       nextErrors.contactEmail = 'Ingresa un correo electrónico válido.';
@@ -499,8 +522,10 @@ function WorkOrderPage({
                   {comments.length > 0 ? comments.map((comment) => (
                     <article className="incident-comment" key={comment.id}>
                       <div className="incident-comment-meta">
-                        <strong>Jhon Pulido</strong>
-                        <span>{comment.isPublic ? 'Público' : 'Interno'} · Ahora</span>
+                        <strong>{comment.author}</strong>
+                        <span>
+                          {comment.isPublic ? 'Público' : 'Interno'} · {new Date(comment.createdAt).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })}
+                        </span>
                       </div>
                       <p>{comment.text}</p>
                     </article>
@@ -522,8 +547,8 @@ function WorkOrderPage({
       </div>
 
       {feedback && (
-        <div className={Object.keys(errors).length ? 'incident-page-feedback incident-page-feedback--error' : 'incident-page-feedback'} role="status">
-          <span aria-hidden="true">{Object.keys(errors).length ? '!' : 'i'}</span>
+        <div className={Object.values(errors).some(Boolean) ? 'incident-page-feedback incident-page-feedback--error' : 'incident-page-feedback'} role="status">
+          <span aria-hidden="true">{Object.values(errors).some(Boolean) ? '!' : 'i'}</span>
           {feedback}
           <button aria-label="Cerrar mensaje" onClick={() => setFeedback('')} type="button">×</button>
         </div>

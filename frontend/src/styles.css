@@ -1181,25 +1181,11 @@ button {
 .login-options {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   gap: 16px;
   margin-top: 25px;
   color: #52706c;
   font-size: 16px;
-}
-
-.remember-option {
-  display: inline-flex;
-  align-items: center;
-  gap: 9px;
-  cursor: pointer;
-}
-
-.remember-option input {
-  width: 16px;
-  height: 16px;
-  margin: 0;
-  accent-color: #198778;
 }
 
 .forgot-password {
@@ -3015,63 +3001,76 @@ button {
 }
 
 .case-ticket-chart {
+  min-width: 0;
   padding: 8px;
-  border: 1px solid #c8d1d7;
-  border-radius: 8px;
-  background: #fff;
+  border: 1px solid #dce8e6;
+  border-radius: 12px;
+  background: linear-gradient(145deg, #fff 50%, #f8fbfa);
+  box-shadow: 0 3px 12px rgb(22 68 63 / 5%);
 }
 
-.case-ticket-chart-plot {
-  display: block;
-  width: 100%;
-  overflow: visible;
+.case-ticket-chart-loading {
+  display: grid;
+  min-height: 190px;
+  place-items: center;
+  color: #78918f;
+  font-size: 12px;
 }
 
-.case-ticket-chart-gridline {
-  stroke: #e4ebed;
-  stroke-width: 1;
-}
-
-.case-ticket-chart-axis-label,
-.case-ticket-chart-row-label,
 .case-ticket-chart-value {
-  fill: #78918f;
   font-family: inherit;
-  font-size: 9px;
-}
-
-.case-ticket-chart-row-label {
-  fill: #52716d;
-  font-size: 10px;
-  font-weight: 700;
-}
-
-.case-ticket-chart-value {
   fill: #16443f;
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 700;
 }
 
-.case-ticket-chart-track {
-  fill: #edf3f2;
+.case-ticket-chart-tooltip {
+  display: grid;
+  gap: 4px;
+  padding: 9px 12px;
+  border: 1px solid #dce8e6;
+  border-radius: 9px;
+  color: #52716d;
+  background: #fff;
+  box-shadow: 0 5px 18px rgb(22 68 63 / 13%);
+  font-size: 12px;
 }
 
-.case-ticket-chart-bar {
-  transition: width 350ms cubic-bezier(0.2, 0.8, 0.2, 1);
+.case-ticket-chart-tooltip strong {
+  color: #16443f;
+  font-size: 11px;
 }
 
-.case-ticket-chart-bar--selected {
-  fill: #1b8175;
-}
-
-.case-ticket-chart-bar--average {
-  fill: #9bb9b4;
+.case-ticket-chart-tooltip span {
+  color: #13877c;
+  font-size: 14px;
+  font-weight: 750;
 }
 
 .case-ticket-chart-empty {
-  fill: #86a2a5;
-  font-family: inherit;
-  font-size: 11px;
+  display: grid;
+  min-height: 190px;
+  place-content: center;
+  justify-items: center;
+  gap: 8px;
+  color: #78918f;
+  text-align: center;
+}
+
+.case-ticket-chart-empty > span {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  border-radius: 12px;
+  color: #13877c;
+  background: #e8f4f2;
+  font-size: 20px;
+}
+
+.case-ticket-chart-empty p {
+  margin: 0;
+  font-size: 12px;
 }
 
 .case-ticket-chart-caption {
@@ -3227,10 +3226,6 @@ button {
     margin-bottom: 12px;
   }
 
-  .case-ticket-chart-plot {
-    max-height: 200px;
-  }
-
   .case-panel-metrics {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 12px;
@@ -3312,9 +3307,14 @@ button {
   }
 
   .case-ticket-item,
-  .case-ticket-chart-control,
-  .case-ticket-chart-bar {
+  .case-ticket-chart-control {
     transition: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .recharts-bar-rectangle {
+    transition: none !important;
   }
 }
 
@@ -3933,6 +3933,21 @@ button {
   background: #e43c36;
   box-shadow: 0 0 0 3px rgb(228 60 54 / 12%);
   transition: border-color 180ms ease, background 180ms ease, box-shadow 180ms ease;
+  animation: required-field-pulse 1.8s ease-in-out infinite;
+  animation-delay: calc(var(--required-index, 0) * 100ms);
+}
+
+@keyframes required-field-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 3px rgb(228 60 54 / 12%);
+  }
+
+  50% {
+    transform: scale(1.12);
+    box-shadow: 0 0 0 6px rgb(228 60 54 / 20%);
+  }
 }
 
 .incident-required-item--complete {
@@ -3943,6 +3958,7 @@ button {
   border-color: #318c4d;
   background: #75c943;
   box-shadow: 0 0 0 3px rgb(117 201 67 / 16%);
+  animation: none;
 }
 
 .incident-attachment-area {
@@ -4375,7 +4391,22 @@ button {
   border-bottom: 1px solid #d5dfe0;
 }
 
-.incident-resource-checkbox,
+.incident-resource-pin {
+  display: grid;
+  width: 19px;
+  height: 19px;
+  flex: 0 0 auto;
+  place-items: center;
+  margin-top: 2px;
+  padding: 0;
+  border: 2px solid #bfcbce;
+  border-radius: 5px;
+  color: #7d9998;
+  background: transparent;
+  cursor: pointer;
+  transition: border-color 180ms ease, color 180ms ease, background 180ms ease, transform 180ms ease;
+}
+
 .incident-ticket-radio {
   width: 19px;
   height: 19px;
@@ -4383,6 +4414,29 @@ button {
   margin-top: 2px;
   border: 2px solid #bfcbce;
   border-radius: 5px;
+}
+
+.incident-resource-pin svg {
+  width: 15px;
+  height: 15px;
+}
+
+.incident-resource-pin:hover,
+.incident-resource-pin:focus-visible {
+  border-color: #13877c;
+  color: #13877c;
+}
+
+.incident-resource-pin:focus-visible {
+  outline: 2px solid #13877c;
+  outline-offset: 3px;
+}
+
+.incident-resource-pin--active {
+  border-color: #13877c;
+  color: #fff;
+  background: #13877c;
+  transform: rotate(-12deg);
 }
 
 .incident-resource-list li > div {
@@ -4871,6 +4925,7 @@ button {
 
 @media (prefers-reduced-motion: reduce) {
   .incident-form-section,
+  .incident-required-indicator,
   .incident-page-feedback {
     animation: none;
   }

@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import AppSearch from '../components/molecules/AppSearch.jsx';
 import NotificationBell from '../components/molecules/NotificationBell.jsx';
 import UserMenu from '../components/molecules/UserMenu.jsx';
+const CasePanelChart = lazy(() => import('../components/molecules/CasePanelChart.jsx'));
 
 function formatDuration(durationMs) {
   const totalSeconds = Math.floor(durationMs / 1000);
@@ -34,10 +35,26 @@ function CasePanel({ onOpenPanel, onOpenRecorder, onOpenIncident, onOpenWorkOrde
     ? selectedTicket?.durationMs ?? runningDurationMs ?? 0
     : getCompletionRate(selectedTicket);
   const averageMetricValue = chartMetric === 'duration' ? averageDurationMs : averageCompletionRate;
-  const chartMaxValue = Math.max(selectedMetricValue, averageMetricValue, chartMetric === 'duration' ? 10000 : 100);
+  const chartMaxValue = Math.max(selectedMetricValue, averageMetricValue, chartMetric === 'duration' ? 10000 : 100)
+    * (chartMetric === 'duration' ? 1.15 : 1.12);
   const formatMetricValue = chartMetric === 'duration'
     ? (value) => formatDuration(value)
     : (value) => `${Math.round(value)}%`;
+  const chartData = [
+    ...(selectedTicket
+      ? [{ name: 'Este ticket', value: selectedMetricValue, color: '#13877c' }]
+      : runningDurationMs !== null
+        ? [{ name: 'En curso', value: selectedMetricValue, color: '#13877c' }]
+        : []),
+    ...(tickets.length
+      ? [{ name: 'Promedio', value: averageMetricValue, color: '#9bb9b4' }]
+      : []),
+  ];
+  const chartLabel = selectedTicket
+    ? `${chartMetric === 'duration' ? 'Tiempo de creación' : 'Campos obligatorios completados'} para ${selectedTicket.number}, comparado con el promedio`
+    : runningDurationMs !== null
+      ? `Tiempo de creación en curso: ${formatDuration(runningDurationMs)}`
+      : 'No hay datos para mostrar';
   const selectedCreatedAt = selectedTicket?.createdAt ? new Date(selectedTicket.createdAt) : null;
   const createdAtLabel = selectedCreatedAt && !Number.isNaN(selectedCreatedAt.getTime())
     ? selectedCreatedAt.toLocaleString('es-CO', { dateStyle: 'medium', timeStyle: 'short' })
@@ -162,81 +179,16 @@ function CasePanel({ onOpenPanel, onOpenRecorder, onOpenIncident, onOpenWorkOrde
               </button>
             </div>
           )}
-          <div className="case-ticket-chart">
-            <svg
-              aria-label={selectedTicket
-                ? `${chartMetric === 'duration' ? 'Tiempo de creación' : 'Campos obligatorios completados'} para ${selectedTicket.number}, comparado con el promedio`
-                : runningDurationMs !== null
-                  ? `Tiempo de creación en curso: ${formatDuration(runningDurationMs)}`
-                  : 'No hay datos para mostrar'}
-              className="case-ticket-chart-plot"
-              role="img"
-              viewBox="0 0 360 180"
-            >
-              {hasChartData && [0, 1, 2, 3, 4].map((index) => {
-                const x = 110 + (index * 52);
-                return (
-                  <g key={index}>
-                    <line className="case-ticket-chart-gridline" x1={x} x2={x} y1="30" y2="145" />
-                    <text className="case-ticket-chart-axis-label" textAnchor="middle" x={x} y="164">
-                      {formatMetricValue((chartMaxValue * index) / 4)}
-                    </text>
-                  </g>
-                );
-              })}
-              {selectedTicket || runningDurationMs !== null ? (
-                <>
-                  <text className="case-ticket-chart-row-label" x="4" y="67">
-                    {selectedTicket ? 'Este ticket' : 'En curso'}
-                  </text>
-                  <rect className="case-ticket-chart-track" x="110" y="48" width="208" height="28" rx="8" />
-                  <rect
-                    className="case-ticket-chart-bar case-ticket-chart-bar--selected"
-                    height="28"
-                    rx="8"
-                    width={Math.max(selectedMetricValue > 0 ? 2 : 0, (selectedMetricValue / chartMaxValue) * 208)}
-                    x="110"
-                    y="48"
-                  >
-                    <title>{formatMetricValue(selectedMetricValue)}</title>
-                  </rect>
-                  <text
-                    className="case-ticket-chart-value"
-                    x={116 + Math.max(selectedMetricValue > 0 ? 2 : 0, (selectedMetricValue / chartMaxValue) * 208)}
-                    y="42"
-                  >
-                    {formatMetricValue(selectedMetricValue)}
-                  </text>
-                  {tickets.length > 0 && (
-                    <>
-                      <text className="case-ticket-chart-row-label" x="4" y="121">Promedio</text>
-                      <rect className="case-ticket-chart-track" x="110" y="102" width="208" height="28" rx="8" />
-                      <rect
-                        className="case-ticket-chart-bar case-ticket-chart-bar--average"
-                        height="28"
-                        rx="8"
-                        width={Math.max(averageMetricValue > 0 ? 2 : 0, (averageMetricValue / chartMaxValue) * 208)}
-                        x="110"
-                        y="102"
-                      >
-                        <title>{formatMetricValue(averageMetricValue)}</title>
-                      </rect>
-                      <text
-                        className="case-ticket-chart-value"
-                        x={116 + Math.max(averageMetricValue > 0 ? 2 : 0, (averageMetricValue / chartMaxValue) * 208)}
-                        y="96"
-                      >
-                        {formatMetricValue(averageMetricValue)}
-                      </text>
-                    </>
-                  )}
-                </>
-              ) : (
-                <text className="case-ticket-chart-empty" textAnchor="middle" x="210" y="90">
-                  Guarda un ticket para ver su gráfica
-                </text>
-              )}
-            </svg>
+          <div className="case-ticket-chart" role="img" aria-label={chartLabel}>
+            <Suspense fallback={<div aria-live="polite" className="case-ticket-chart-loading">Cargando gráfica...</div>}>
+              <CasePanelChart
+                data={hasChartData ? chartData : []}
+                domainMax={chartMaxValue}
+                formatMetricValue={formatMetricValue}
+                isPercentage={chartMetric === 'completion'}
+                label={chartLabel}
+              />
+            </Suspense>
           </div>
           <p className="case-ticket-chart-caption">
             {selectedTicket
@@ -289,7 +241,7 @@ function CasePanel({ onOpenPanel, onOpenRecorder, onOpenIncident, onOpenWorkOrde
         <div className="recorder-create-wrap">
           {isTicketMenuOpen && (
             <div className="recorder-ticket-menu" role="menu">
-              {['Incidente', 'Orden de trabajo', 'Consulta'].map((type) => (
+              {['Incidente', 'Orden de trabajo'].map((type) => (
                 <button
                   key={type}
                   onClick={() => {
