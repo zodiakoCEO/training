@@ -9,6 +9,8 @@ const BENEFITS = [
   'Colabora con tu equipo y resuelve incidencias en tiempo real.',
 ];
 
+const MIN_LOGIN_LOADING_MS = 2000;
+
 const LOGIN_ALERT_OPTIONS = {
   width: '360px',
   padding: '1.25rem',
@@ -22,6 +24,13 @@ const LOGIN_ALERT_OPTIONS = {
     confirmButton: 'login-alert-confirm',
   },
 };
+
+async function waitForMinimumLoginFeedback(startedAt) {
+  const remainingMs = MIN_LOGIN_LOADING_MS - (Date.now() - startedAt);
+  if (remainingMs > 0) {
+    await new Promise((resolve) => window.setTimeout(resolve, remainingMs));
+  }
+}
 
 function ProjectLogin({ onBack, onLogin }) {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
@@ -79,10 +88,13 @@ function ProjectLogin({ onBack, onLogin }) {
     }
 
     setIsSubmitting(true);
+    const loadingStartedAt = Date.now();
     try {
       const user = await loginUser(email, password);
+      await waitForMinimumLoginFeedback(loadingStartedAt);
       onLogin(user);
     } catch (error) {
+      await waitForMinimumLoginFeedback(loadingStartedAt);
       Swal.fire({
         ...LOGIN_ALERT_OPTIONS,
         icon: error.message === 'Correo o contrasena incorrectos' ? 'warning' : 'error',
@@ -142,11 +154,12 @@ function ProjectLogin({ onBack, onLogin }) {
           <h2>Iniciar sesión</h2>
           <p className="login-subtitle">Accede a tu cuenta empresarial Unisys Training</p>
 
-          <form className="login-form" noValidate onSubmit={handleSubmit}>
+          <form aria-busy={isSubmitting} className="login-form" noValidate onSubmit={handleSubmit}>
             <label className="login-field-label" htmlFor="login-email">Usuario</label>
             <input
               autoComplete="username"
               className="login-input"
+              disabled={isSubmitting}
               id="login-email"
               name="email"
               placeholder="nombre.apellido@unisys.com"
@@ -161,6 +174,7 @@ function ProjectLogin({ onBack, onLogin }) {
               <input
                 autoComplete="current-password"
                 className="login-input"
+                disabled={isSubmitting}
                 id="login-password"
                 name="password"
                 required
@@ -169,6 +183,7 @@ function ProjectLogin({ onBack, onLogin }) {
               <button
                 aria-label={isPasswordVisible ? 'Ocultar contraseña' : 'Mostrar contraseña'}
                 className="password-visibility"
+                disabled={isSubmitting}
                 onClick={() => setIsPasswordVisible((visible) => !visible)}
                 type="button"
               >
@@ -182,6 +197,7 @@ function ProjectLogin({ onBack, onLogin }) {
             <div className="login-options">
               <button
                 className="forgot-password"
+                disabled={isSubmitting}
                 onClick={() => Swal.fire({
                   ...LOGIN_ALERT_OPTIONS,
                   icon: 'info',
@@ -197,6 +213,12 @@ function ProjectLogin({ onBack, onLogin }) {
             <button className="login-submit" disabled={isSubmitting} type="submit">
               {isSubmitting ? 'Validando...' : 'Iniciar sesión'}
             </button>
+            {isSubmitting && (
+              <div aria-live="polite" className="login-progress" role="status">
+                <span aria-hidden="true" className="login-spinner" />
+                <span>Validando tus credenciales...</span>
+              </div>
+            )}
 
             <div className="login-security-note">
               <svg aria-hidden="true" viewBox="0 0 20 20" fill="none">

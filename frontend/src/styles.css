@@ -1221,6 +1221,38 @@ button {
   outline-offset: 3px;
 }
 
+.login-submit:disabled {
+  background: #527f79;
+  cursor: wait;
+}
+
+.login-progress {
+  display: flex;
+  min-height: 34px;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  margin-top: 12px;
+  color: #527975;
+  font-size: 13px;
+}
+
+.login-spinner {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+  border: 2px solid #cce4e0;
+  border-top-color: #138477;
+  border-radius: 50%;
+  animation: login-spinner-rotate 700ms linear infinite;
+}
+
+@keyframes login-spinner-rotate {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .login-security-note {
   display: flex;
   align-items: flex-start;
@@ -4926,7 +4958,8 @@ button {
 @media (prefers-reduced-motion: reduce) {
   .incident-form-section,
   .incident-required-indicator,
-  .incident-page-feedback {
+  .incident-page-feedback,
+  .login-spinner {
     animation: none;
   }
 
